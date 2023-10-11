@@ -25,7 +25,7 @@ def lowestPercentage(ml_model, X_test, n):
     X_test: pandas DataFrame
         The new testing set with the samples removed.
     """
-    from sklearn.utils import shuffle
+    from scikit-learn.utils import shuffle
     predictions, probabilities = ml_model.GetUnknownPredictions(X_test)
 
     X_test['prediction score'] = probabilities

@@ -105,7 +105,7 @@ class ML_Model:
         accuracies : list
             The 10 accuracy values using 10-fold cross-validation.
         """
-        from sklearn.model_selection import cross_val_score
+        from scikit-learn.model_selection import cross_val_score
         accuracies = cross_val_score(self.ml_classifier, self.X, self.y, cv=3)
         return accuracies
 
@@ -245,7 +245,7 @@ class Active_ML_Model:
         train : pandas DataFrame
             The train set.
         """
-        from sklearn.utils import shuffle
+        from scikit-learn.utils import shuffle
         data = shuffle(data)
         self.sample = data.iloc[:n_samples, :]
         self.test = data.iloc[n_samples:, :]

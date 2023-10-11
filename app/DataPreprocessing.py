@@ -36,17 +36,17 @@ class DataPreprocessing:
         """
         self.sc = None
         if standard_scaling == True:
-            from sklearn.preprocessing import StandardScaler
+            from scikit-learn.preprocessing import StandardScaler
             self.sc = StandardScaler()
         
         self.norm = None
         if normalization == True:
-            from sklearn.preprocessing import Normalizer
+            from scikit-learn.preprocessing import Normalizer
             self.norm = Normalizer()
         
         self.pca = None
         if pca == True:
-            from sklearn.decomposition import PCA
+            from scikit-learn.decomposition import PCA
             self.pca = PCA(n_components = components)
 
         

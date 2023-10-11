@@ -28,7 +28,6 @@ s3transfer
 scikit-learn
 scipy
 six
-sklearn
 threadpoolctl
 typing-extensions
 urllib3

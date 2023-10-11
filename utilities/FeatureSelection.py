@@ -3,9 +3,9 @@ import os
 import sys
 import pandas as pd
 import numpy as np
-from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import chi2
-from sklearn.ensemble import ExtraTreesClassifier
+from scikit-learn.feature_selection import SelectKBest
+from scikit-learn.feature_selection import chi2
+from scikit-learn.ensemble import ExtraTreesClassifier
 import matplotlib.pyplot as plt
 
 """@package FeatureSelection
