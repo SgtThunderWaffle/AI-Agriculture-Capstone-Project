@@ -127,3 +127,19 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#Drone Images
+.images_drone
+images_drone/
+.TestImages
+TestImages/
+.TrainImages
+TrainImages/
+
+#CSV Data Files
+.csvOut_backup.csv
+csvOut_backup.csv
+.app/csvOut.csv
+app/csvOut.csv
+.testing/csvOut.csv
+testing/csvOut.csv

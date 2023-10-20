@@ -10,7 +10,7 @@ from app.ML_Class import Active_ML_Model, AL_Encoder, ML_Model
 from app.SamplingMethods import lowestPercentage
 from app.forms import LabelForm
 from flask_bootstrap import Bootstrap
-from scikit-learn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 import os
 import numpy as np

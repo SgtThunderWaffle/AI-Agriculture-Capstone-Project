@@ -42,11 +42,11 @@ class ML_Model:
         self.ml_classifier = ml_classifier
         self.preprocess = preprocess
 
-        self.X = train_data.iloc[:,: -1].values
+        self.X = train_data.iloc[:,:-1].values
+        print(self.X)
         self.y = train_data.iloc[:, -1].values
 
         self.X = self.preprocess.fit_transform(self.X)
-
         self.ml_model = ml_classifier.fit(self.X, self.y)
 
     def GetKnownPredictions(self, new_data):
@@ -105,7 +105,7 @@ class ML_Model:
         accuracies : list
             The 10 accuracy values using 10-fold cross-validation.
         """
-        from scikit-learn.model_selection import cross_val_score
+        from sklearn.model_selection import cross_val_score
         accuracies = cross_val_score(self.ml_classifier, self.X, self.y, cv=3)
         return accuracies
 
@@ -245,7 +245,7 @@ class Active_ML_Model:
         train : pandas DataFrame
             The train set.
         """
-        from scikit-learn.utils import shuffle
+        from sklearn.utils import shuffle
         data = shuffle(data)
         self.sample = data.iloc[:n_samples, :]
         self.test = data.iloc[n_samples:, :]
