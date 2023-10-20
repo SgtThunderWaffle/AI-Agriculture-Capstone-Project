@@ -1,6 +1,9 @@
 # AI-Agriculture-Capstone-Project
 Repository for AI Capstone Project, teaching farmers how to effectively use Machine Learning and AI
 
+Instructions:
+Test data can be organized into the sub-directories of TrainImages/ by running PopulateImages3.ps1. Populating the data uses maxAreas.json, so the script will recreate it if no copy is found. Then, ImagePreprocessingTest.py is run from within the testing/ directory, followed by MLModelTest.py (from the same directory). These files will generate training data from the sample, train a model based on said sample, and then predict values using data derived from test images.
+
 Current Status:
 Code has been reconnected and successfully ran in flask, and the source of the images and their metadata has been found. In addition, code has been implemented to select training data from the set of total images based on blight area sizes. Then a test program extracts data from random test samples and creates/trains a model to predict image state.
 

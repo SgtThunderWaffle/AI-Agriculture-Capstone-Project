@@ -64,11 +64,11 @@ def getRandomPictureData(count):
     
     
 
-data = getData("../app/csvOut.csv")
+data = getData("csvOut_train.csv")
 ml_model = createMLModel(data)
 
 getRandomPictureData(10)
-testData = getData("./csvOut.csv")
+testData = getData("csvOut_test.csv")
 testInput = DataPreprocessing(True).fit_transform(testData.iloc[:,:-1])
 print(testData)
 print(ml_model.predict(testInput))

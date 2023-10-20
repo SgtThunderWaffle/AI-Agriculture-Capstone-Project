@@ -45,18 +45,18 @@ to be used by the machine learning class.
         if (isTraining):
             blighted_features = self.allFilesInDir(folder_name + 'blighted/', 'B')
             healthy_features = self.allFilesInDir(folder_name + 'healthy/', 'H')
-            with open('csvOut.csv','w', newline = '') as csvfile:
+            with open('csvOut_train.csv','w', newline = '') as csvfile:
                 obj = csv.writer(csvfile)
                 obj.writerow(columnLabels)
                 obj.writerows(blighted_features)
-            with open('csvOut.csv','a', newline = '') as csvfile:
+            with open('csvOut_train.csv','a', newline = '') as csvfile:
                 obj = csv.writer(csvfile)
                 obj.writerows(healthy_features)
             print(blighted_features)
             print(healthy_features)
         else:
             features = self.allFilesInDir(folder_name, 'NA')
-            with open('csvOut.csv','w',newline='') as csvfile:
+            with open('csvOut_test.csv','w',newline='') as csvfile:
                 obj = csv.writer(csvfile)
                 obj.writerow(columnLabels)
                 obj.writerows(features)
