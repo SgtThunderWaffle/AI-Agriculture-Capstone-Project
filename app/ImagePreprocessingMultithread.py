@@ -48,8 +48,8 @@ to be used by the machine learning class.
                         'numRGB_blightedPxls', 'blightedRGBRatio', 'RGB_and_HSV_blighted', 'RGB_and_HSV_both_ratio', 'label')
         if (isTraining):
             #halfway stop index in each txt file is 1410
-            blighted_set = self.getFeaturesMultithread("unhealthySet", folder_name, 'B', 0, 9, threadCountPer)
-            healthy_set = self.getFeaturesMultithread("healthySet", folder_name, 'H', 0, 9, threadCountPer)
+            blighted_set = self.getFeaturesMultithread("unhealthySet", folder_name, 'B', 0, 1877, threadCountPer)
+            healthy_set = self.getFeaturesMultithread("healthySet", folder_name, 'H', 0, 1877, threadCountPer)
             
             for td in blighted_set[0]:
                 td.join()
@@ -77,7 +77,22 @@ to be used by the machine learning class.
             print(blighted_features)
             print(healthy_features)
         else: #Fix this
-            features = self.allFilesInDir(folder_name, 'NA')
+            test_set_1 = self.getFeaturesMultithread("unhealthySet", folder_name, 'NA', 1878, 2821, threadCountPer)
+            test_set_2 = self.getFeaturesMultithread("healthySet", folder_name, 'NA', 1878, 2817, threadCountPer)
+            
+            for td in test_set_1[0]:
+                td.join()
+            for td in test_set_2[0]:
+                td.join()
+            
+            features = []
+            for features in test_set_1[1]:
+                for feature in features:
+                    features.append(feature)
+            for features in test_set_2[1]:
+                for feature in features:
+                    features.append(feature)
+            
             with open('csvOut_test.csv','w',newline='') as csvfile:
                 obj = csv.writer(csvfile)
                 obj.writerow(columnLabels)
