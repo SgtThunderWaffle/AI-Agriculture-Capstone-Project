@@ -12,6 +12,8 @@ from skimage.io import imread, imshow
 import matplotlib.pyplot as plt
 from skimage.color import rgb2hsv
 import numpy as np
+from threading import Thread
+import math
 
 class ImagePreprocessing:
     """@package ImagePreprocessing
@@ -30,10 +32,12 @@ to be used by the machine learning class.
     from skimage.io import imread, imshow
     import matplotlib.pyplot as plt
     from skimage.color import rgb2hsv
+    from threading import Thread
+    import math
     #conda install -c anaconda scikit-image
     #BSD 3-Clause
     
-    def __init__(self, folder_name, isTraining):
+    def __init__(self, folder_name, isTraining, threadCountPer):
         
         #Please update these column labels if you add features in order to help with feature selection.
         columnLabels = ('fileName','fvhu','fvhu2','fvhu3','fvhu4','fvhu5','fvhu6','fvhu7',
@@ -43,8 +47,26 @@ to be used by the machine learning class.
                         'num_brown_blue', 'numForegroundPxls', 'blightedHSV_pxls', 'blightedHSV_ratio', 
                         'numRGB_blightedPxls', 'blightedRGBRatio', 'RGB_and_HSV_blighted', 'RGB_and_HSV_both_ratio', 'label')
         if (isTraining):
-            blighted_features = self.allSetFiles("unhealthySet", folder_name, 'B', 1411)
-            healthy_features = self.allSetFiles("healthySet", folder_name, 'H', 1411)
+            #halfway stop index in each txt file is 1410
+            blighted_set = self.getFeaturesMultithread("unhealthySet", folder_name, 'B', 0, 9, threadCountPer)
+            healthy_set = self.getFeaturesMultithread("healthySet", folder_name, 'H', 0, 9, threadCountPer)
+            
+            for td in blighted_set[0]:
+                td.join()
+            for td in healthy_set[0]:
+                td.join()
+                
+            blighted_features = []
+            for features in blighted_set[1]:
+                for feature in features:
+                    blighted_features.append(feature)
+            healthy_features = []
+            for features in healthy_set[1]:
+                for feature in features:
+                    healthy_features.append(feature)
+        
+            #blighted_features = self.allSetFiles("unhealthySet", folder_name, 'B', 1411)
+            #healthy_features = self.allSetFiles("healthySet", folder_name, 'H', 1411)
             with open('csvOut_train.csv','w', newline = '') as csvfile:
                 obj = csv.writer(csvfile)
                 obj.writerow(columnLabels)
@@ -61,6 +83,23 @@ to be used by the machine learning class.
                 obj.writerow(columnLabels)
                 obj.writerows(features)
             print(features)
+            
+    def getFeaturesMultithread(self, setListName, dir_name, label, startIndex, stopIndex, threadCount):
+        features = []
+        threads = []
+        increment = math.floor((stopIndex+1)/threadCount)
+        currentStart = startIndex
+        currentStop = currentStart + increment - 1
+        for x in range(0,threadCount):
+            features.append([])
+            if (stopIndex - currentStop < increment):
+                currentStop = stopIndex
+            threads.append(Thread(target=self.allSetFiles, args=(setListName, dir_name, label, currentStart, currentStop, features[x])))
+            currentStart = currentStart + increment
+            currentStop = currentStop + increment
+            threads[x].start()
+        return (threads,features)
+            
     
     def getAdvancedFeatures(self,imageIn):
         """
@@ -283,16 +322,17 @@ to be used by the machine learning class.
                     print(counter)
             return csvOut
             
-    def allSetFiles(self, setListName, dir_name, label, count):
-            csvOut = []
+    def allSetFiles(self, setListName, dir_name, label, startIndex, stopIndex, csvOut):
+            #csvOut = []
             counter = 0
             with open("../"+setListName+".txt",'r') as set:
                 lines = [line[:-1] for line in set]
-                for line in lines:
+                for x in range(startIndex,stopIndex+1):
                     
+                    line = lines[x]
                     image = imread(dir_name+line, as_gray=True)
                     import matplotlib.pyplot as plt
-                    plt.imshow(image, cmap='gray', vmin=0, vmax=1)
+                    #plt.imshow(image, cmap='gray', vmin=0, vmax=1)
                     #plt.show()
                     gray_mean = self.avgGray(image)
     
@@ -318,7 +358,7 @@ to be used by the machine learning class.
                     csvOut.append(feature_vector)
                     counter += 1
                     print(counter)
-                    if (counter > count): break
+                    #if (counter > count): break
             return csvOut
     
 #Main

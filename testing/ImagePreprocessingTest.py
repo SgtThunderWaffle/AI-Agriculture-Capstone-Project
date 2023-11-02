@@ -4,4 +4,4 @@ sys.path.append('..')
 import app
 from app.ImagePreprocessing import ImagePreprocessing
 
-ImagePreprocessing("../TrainImages/",True)
+ImagePreprocessing("../images_drone/images_drone/",True)
