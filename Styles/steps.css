@@ -1,0 +1,131 @@
+body {
+    background-image: url('../Styles/images/v1_2.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.title {
+    display: block;
+    position: absolute;
+    bottom: 92%;
+    font-family: Arial, sans-serif;
+    font-size: 45px;
+    font-weight: normal;
+    font-style: italic;
+    color: #FFFFFF;
+    text-align: left;
+    background-color: rgba(97, 97, 97, 0.7); /* RGB 616161 at 70% opacity */
+    padding: .5% .9%; /* Adjust padding as needed */
+    -webkit-text-stroke: .2px #939393; /* 2-pixel-wide black text outline */
+}
+
+.description {
+    display: block;
+    position: absolute;
+    bottom: 20%;
+    right: 1%;
+    font-size: 32px;
+    font-weight: normal;
+    font-style: normal;
+    color: #FFFFFF;
+    margin-left: 50%;
+    text-align: left;
+}
+
+.content-box {
+    display: flex;
+    background-color: #FFFFFF;
+    width: 92vw; /* Adjust the size as needed */
+    height: 63vh; /* Adjust the height as needed */
+    margin: 2%;
+    margin-top: 6%;
+    margin-left: 1%;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid rgba(0, 0, 0, 1); /* 2-pixel black border at 100% opacity */
+}
+
+.next-button {
+    position: absolute;
+    bottom: 5%;
+    right: 1%;
+    background-color: rgba(97, 97, 97, 1); /* RGB 616161 at 100% opacity */
+    color: #FFFFFF; /* RGB FFFFFF at 100% opacity */
+    font-size: 24px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+.back-button {
+    position: absolute;
+    bottom: 5%;
+    right: 90%;
+    background-color: rgba(97, 97, 97, 1); /* RGB 616161 at 100% opacity */
+    color: #FFFFFF; /* RGB FFFFFF at 100% opacity */
+    font-size: 24px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .title {
+        display: block;
+        position: absolute;
+        bottom: 20%;
+        right: 20%;
+    }
+    .description {
+        display: block;
+        position: absolute;
+        bottom: auto;
+        right: 20%;
+        top: 50%;
+        margin-top: 10px;
+    }
+    .next-button {
+        position: absolute;
+        bottom: auto;
+        right: 20%;
+        top: 70%;
+        margin-top: 10px;
+    }
+    .back-button {
+        position: absolute;
+        bottom: auto;
+        right: 20%;
+        top: 70%;
+        margin-top: 10px;
+    }
+}
+
+.dots-container {
+    display: flex;
+    justify-content: space-between;
+    width: 200px; /* Adjust the width as needed */
+    position: absolute;
+    bottom: 10%px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.dot {
+    width: 20px;
+    height: 20px;
+    background-color: #FFFFFF; /* Set the background color to white */
+    margin: 0 5px; /* Adjust the spacing between dots as needed */
+    border-radius: 80%;
+}
+
+.redot {
+    width: 20px;
+    height: 20px;
+    background-color: #939393; /* Set the background color to white */
+    margin: 0 5px; /* Adjust the spacing between dots as needed */
+    border-radius: 80%;
+}
