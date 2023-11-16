@@ -26,7 +26,7 @@
 					<br><br>
 					{% else %}
 					<img class="img-fluid img-thumbnail"
-						src="https://cornimagesbucket.s3.us-east-2.amazonaws.com/images_compressed/{{healthy_list[i]}}"
+						src="/static/images/{{healthy_list[i]}}"
 						alt="">
 					<h6 class="font-weight-normal">Confidence: {{healthy_conf_list[i]}}
 					{% endif %}
@@ -55,7 +55,7 @@
 					<br><br>
 					{% else %}
 					<img class="img-fluid img-thumbnail"
-						src="https://cornimagesbucket.s3.us-east-2.amazonaws.com/images_compressed/{{unhealthy_list[i]}}"
+						src="/static/images/{{unhealthy_list[i]}}"
 						alt="">
 					<h6 class="font-weight-normal">Confidence: {{unhealthy_conf_list[i]}}
 					{% endif %}
