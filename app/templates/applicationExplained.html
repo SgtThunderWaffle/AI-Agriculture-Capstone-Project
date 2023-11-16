@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/explanation.css') }}">
+</head>
+<body>
+    <div class="title">
+        <t> AI application in Daily Lives </t>
+    </div>
+
+    <div class="description">
+        AI as an emerging technology: <br>
+	While AI is nothing new, many career fields lacked the amount of data or need of dataprocessing that AI brings. 
+	In the case of agriculture, with better data collection methods that we have now, use of AI to assist in data processing, 
+	whether that be detecting visual symptoms of diseases in plants like the example project, 
+	or analyzing soil contents to determine nutrient and moisture content and advise treatments, 
+	with the increasing amount of technological applications in agriculture,
+	AI will surely be among the ranks of other technologies.
+    </div>
+
+    <button class="back-button">
+    <a href="step6.html" style="text-decoration: none; color: #FFFFFF;">BACK</a>
+    </button>
+
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/explanation.css') }}">
+</head>
+<body>
+    <div class="title">
+        <t> What is AI? </t>
+    </div>
+
+    <div class="description">
+    Definition: AI (Artificial Intelligence) is a colloquial term for Machine Learning, where code is used to automate data processing of a human scale problem<br>
+	Examples of AI: facial recognition, image recognition, automatic data processing in general<br>
+	Why use AI: problems with large scales that have a lot of data to process that goes beyond a human scale, or automation of data collection in it of itself.
+    </div>
+
+   <button class="next-button">
+    <a href="step1.html" style="text-decoration: none; color: #FFFFFF;">NEXT</a>
+    </button>
+
+    <button class="back-button">
+    <a href="index.html" style="text-decoration: none; color: #FFFFFF;">BACK</a>
+    </button>
+
+</body>
+</html>
+{% endblock %}

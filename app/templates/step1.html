@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/steps.css') }}">
+</head>
+<body>
+    <div class="title">
+         STEP 1: Training of AI
+    </div>
+
+    <div class="description">
+    </div>
+    
+     <div class="content-box">
+	When determining if a problem is worth using AI on:
+	<ol>
+		<li> Is it a problem largely involving data processing or collection?</li>
+		<li> Does the problem involve such a large swathe of data that it is unrealistic for a person to be able to process it in a timely manner?</li>
+		<li> Is it a recurring problem or a one-time issue? </li>
+		<li> Does the problem have enough underlying data (thousands of datapoints that can be gathered and processed)? </li>
+		<li> Would the problems nature ever drastically change, leaving current data irrelevant? </li>
+		<li> Does the problem have clear different categories/ways to differentiate data points?</li>
+	</ol>
+    </div>
+
+   <button class="next-button">
+    <a href="step2.html" style="text-decoration: none; color: #FFFFFF;">NEXT</a>
+    </button>
+    
+    <button class="back-button">
+    <a href="aiExplained.html" style="text-decoration: none; color: #FFFFFF;">BACK</a>
+    </button>
+    
+    <div class="dots-container">
+        <div class="redot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+    
+</body>
+</html>
+{% endblock %}
