@@ -258,8 +258,8 @@ class ML_Model:
 
 class Active_ML_Model(ML_Model):
     
-    def _init_(self, ml_classifier, preprocess, data):
-        ML_Model._init_(self, ml_classifier, preprocess, data)
+    def _init_(self, ml_classifier, preprocess, data, token):
+        ML_Model._init_(self, ml_classifier, preprocess, data, token)
     
     def partial_train(data):
         self.X = numpy.add(self.X, self.get_x(data))
