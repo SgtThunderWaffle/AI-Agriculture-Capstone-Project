@@ -181,6 +181,7 @@ def prepairResults(form):
         return render_template('final.html', form = form, confidence = "{:.2%}".format(round(session['confidence'],4)), health_user = health_pic_user, blight_user = blight_pic_user, healthNum_user = len(health_pic_user), blightNum_user = len(blight_pic_user), health_test = health_pic, unhealth_test = blight_pic, healthyNum = len(health_pic), unhealthyNum = len(blight_pic), healthyPct = "{:.2%}".format(len(health_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), unhealthyPct = "{:.2%}".format(len(blight_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), h_prob = health_pic_prob, b_prob = blight_pic_prob)
 
 @app.route("/", methods=['GET'])
+
 @app.route("/index.html",methods=['GET'])
 def home():
     """
@@ -188,6 +189,60 @@ def home():
     """
     session.pop('model', None)
     return render_template('index.html')
+
+@app.route('/aiExplained.html')
+def ai_explained():
+    print("RUNNING AIEXPLAINED APP ROUTE")
+    return render_template('aiExplained.html')
+
+@app.route("/applicationExplained.html")
+def applicationExplained():
+    """
+    Operates the applicationExplained.html web page.
+    """
+    return render_template('applicationExplained.html')
+
+@app.route("/step1.html")
+def step1():
+    """
+    Operates the step1.html web page.
+    """
+    return render_template('step1.html')
+
+@app.route("/step2.html")
+def step2():
+    """
+    Operates the step2.html web page.
+    """
+    return render_template('step2.html')
+
+@app.route("/step3.html")
+def step3():
+    """
+    Operates the step3.html web page.
+    """
+    return render_template('step3.html')
+
+@app.route("/step4.html")
+def step4():
+    """
+    Operates the step4.html web page.
+    """
+    return render_template('step4.html')
+
+@app.route("/step5.html")
+def step5():
+    """
+    Operates the step5.html web page.
+    """
+    return render_template('step5.html')
+
+@app.route("/step6.html")
+def step6():
+    """
+    Operates the step6.html web page.
+    """
+    return render_template('step6.html')
 
 @app.route("/label.html",methods=['GET', 'POST'])
 def label():
