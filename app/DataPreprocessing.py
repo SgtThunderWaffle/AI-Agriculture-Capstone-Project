@@ -4,12 +4,9 @@ Created on Sat Feb  8 11:21:32 2020
 
 @author: Donovan
 """
+
 class DataPreprocessing:
-    """
-    This class object prepares the data for classification.
-    
-    """
-    
+
     def __init__(self, standard_scaling = False, normalization = False, pca = False, components = None):
         """
         This function controls the initial creation of the data preprocessing class object.
@@ -80,7 +77,7 @@ class DataPreprocessing:
         if self.pca != None:
             X_train = self.pca.fit_transform(X_train)
         return X_train
-    
+
     def transform(self, X_test):
         """
         Transforms new data before prediction.

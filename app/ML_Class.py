@@ -13,7 +13,7 @@ class ML_Model:
 
     """
 
-    def __init__(self, train_data, ml_classifier, preprocess):
+    def __init__(self, ml_classifier, preprocess):
         """
         This function controls the initial creation of the machine learning model.
 
@@ -42,11 +42,9 @@ class ML_Model:
         self.ml_classifier = ml_classifier
         self.preprocess = preprocess
 
-        self.X = train_data.iloc[:,: -1].values
-        self.y = train_data.iloc[:, -1].values
-
-        self.X = self.preprocess.fit_transform(self.X)
-
+        self.X = None
+        self.Y = None
+        
         self.ml_model = ml_classifier.fit(self.X, self.y)
 
     def GetKnownPredictions(self, new_data):
@@ -66,8 +64,7 @@ class ML_Model:
         prob : list
             The probability that the label is correct.
         """
-        new_data_X = new_data.iloc[:, :-1].values
-        new_data_X = self.preprocess.transform(new_data_X)
+        new_data_X = self.preprocess.fit_transform(new_data.iloc[:, :-1].values)
         y_prediction = self.ml_model.predict(new_data_X)
         y_probabilities = self.ml_model.predict_proba(new_data_X)
         y_probabilities = [max(prob) for prob in y_probabilities]
