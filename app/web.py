@@ -7,6 +7,7 @@ from flask import render_template, flash, redirect, url_for, session, request, j
 from app import app
 from app.DataPreprocessing import DataPreprocessing
 from app.ML_Class_New import ML_Model
+from app.ML_Class_New import load_model
 from app.SamplingMethods import lowestPercentage
 from app.forms import LabelForm
 from flask_bootstrap import Bootstrap
@@ -60,7 +61,7 @@ def load_defaultMLmodel(data):
     ml_model : ML_Model class object
         the model loaded
     """
-    ml_model = ML_Model(RandomForestClassifier(), DataPreprocessing(True), "default_model", "../Models/")
+    ml_model = load_model("../Models/", "default_model")
     return ml_model
 
 def createMLModel(data):
