@@ -53,7 +53,6 @@ class ML_Model:
             self.ml_classifier = ml_classifier
             self.preprocess = preprocess
             self.set_token(token)
-            self.visual_present = False
 
             self.train_model(data)
     
@@ -244,19 +243,17 @@ class ML_Model:
             os.mkdir(self.modeldir+self.token+'/')
         dump(self, self.modeldir+self.token+'/model.joblib')
         
-    def visualize_model(self):
-        if not self.visual_present:
-            models_dir = '../../Models/'
-            token_dir = models_dir+self.token+'/'
-            if not os.path.exists(models_dir):
-                os.mkdir(models_dir)
-            if not os.path.exists(token_dir):
-                os.mkdir(token_dir)
-            estimator_dir = token_dir+'random_estimator.dot'
-            random_estimator = self.ml_model.estimators_[randint(0,len(self.ml_model.estimators_))]
-            export_graphviz(random_estimator, out_file=estimator_dir, max_depth=3)
-            (graph, ) = pydot.graph_from_dot_file(estimator_dir)
-            graph.write_png(token_dir+'random_estimator.png')
+    def visualize_model(self, maxdepth):
+        if not os.path.exists(self.modeldir):
+            os.mkdir(self.modeldir)
+        if not os.path.exists(self.modeldir+self.token+'/'):
+            os.mkdir(self.modeldir+self.token+'/')
+        token_dir = self.modeldir+self.token+'/'
+        estimator_dir = token_dir+'random_estimator.dot'
+        random_estimator = self.ml_model.estimators_[randint(0,len(self.ml_model.estimators_))]
+        export_graphviz(random_estimator, out_file=estimator_dir, max_depth=maxdepth)
+        (graph, ) = pydot.graph_from_dot_file(estimator_dir)
+        graph.write_png(token_dir+'random_estimator.png')
 
 
 class Active_ML_Model(ML_Model):
