@@ -51,11 +51,6 @@ def load_defaultMLmodel(data):
     """
     Loads the default machine learning model from it's special token folder
     
-    Parameters
-    ----------
-    data : Pandas DataFrame
-        The data that contains the features for each image
-    
     Returns
     -------
     ml_model : ML_Model class object
