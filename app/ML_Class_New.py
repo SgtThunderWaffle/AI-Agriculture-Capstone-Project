@@ -48,7 +48,7 @@ class ML_Model:
         self.modeldir = modeldir
         self.set_token(token)
         if os.path.exists(modeldir+token+'/model.joblib'):
-            self.load_model(token)
+            load_model(token)
         else:
             self.ml_classifier = ml_classifier
             self.preprocess = preprocess
