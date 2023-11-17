@@ -8,6 +8,10 @@ from random import randint
 import pydot
 from sklearn.tree import export_graphviz
 
+def load_model(modeldir, token):
+    ml_model = load(modeldir+token+'/model.joblib')
+    return ml_model
+
 class ML_Model:
     """
     This class creates a machine learning model based on the data sent,
@@ -15,7 +19,7 @@ class ML_Model:
 
     """
 
-    def __init__(self, ml_classifier, preprocess, data, token):
+    def __init__(self, ml_classifier, preprocess, data, token, modeldir):
         """
         This function controls the initial creation of the machine learning model.
 
@@ -41,7 +45,9 @@ class ML_Model:
         ml_model : fitted machine learning classifier
             The machine learning model created using the training data.
         """
-        if os.path.exists('../../Models/'+token+'/model.joblib'):
+        self.modeldir = modeldir
+        self.set_token(token)
+        if os.path.exists(modeldir+token+'/model.joblib'):
             self.load_model(token)
         else:
             self.ml_classifier = ml_classifier
@@ -232,14 +238,11 @@ class ML_Model:
         return health_pic_user, blight_pic_user, new_health_pic, new_blight_pic, new_health_pic_prob, new_blight_pic_prob
         
     def save_model(self):
-        if not os.path.exists('../../Models/'):
-            os.mkdir('../../Models/')
-        if not os.path.exists('../../Models/'+self.token+'/'):
-            os.mkdir('../../Models/'+self.token+'/')
-        dump(self, '../../Models/'+self.token+'/model.joblib')
-        
-    def load_model(self,token):
-        self = load('../../Models/'+token+'/model.joblib')
+        if not os.path.exists(self.modeldir):
+            os.mkdir(self.modeldir)
+        if not os.path.exists(self.modeldir+self.token+'/'):
+            os.mkdir(self.modeldir+self.token+'/')
+        dump(self, self.modeldir+self.token+'/model.joblib')
         
     def visualize_model(self):
         if not self.visual_present:

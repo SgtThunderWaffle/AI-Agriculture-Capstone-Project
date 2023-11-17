@@ -6,7 +6,7 @@ from flask import Flask
 from flask import render_template, flash, redirect, url_for, session, request, jsonify
 from app import app
 from app.DataPreprocessing import DataPreprocessing
-from app.ML_Class import Active_ML_Model, AL_Encoder, ML_Model
+from app.ML_Class_New import ML_Model
 from app.SamplingMethods import lowestPercentage
 from app.forms import LabelForm
 from flask_bootstrap import Bootstrap
@@ -45,6 +45,23 @@ def getData():
     print(data_mod)
 
     return data_mod.iloc[:, :-1]
+
+def load_defaultMLmodel(data):
+    """
+    Loads the default machine learning model from it's special token folder
+    
+    Parameters
+    ----------
+    data : Pandas DataFrame
+        The data that contains the features for each image
+    
+    Returns
+    -------
+    ml_model : ML_Model class object
+        the model loaded
+    """
+    ml_model = ML_Model(RandomForestClassifier(), DataPreprocessing(True), "default_model", "../Models/")
+    return ml_model
 
 def createMLModel(data):
     """
