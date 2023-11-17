@@ -36,3 +36,6 @@ Werkzeug
 wrapt
 WTForms
 yarl
+opencv-python
+matplotlib
+mahotas
