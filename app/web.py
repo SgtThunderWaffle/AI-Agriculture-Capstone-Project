@@ -6,8 +6,7 @@ from flask import Flask
 from flask import render_template, flash, redirect, url_for, session, request, jsonify
 from app import app
 from app.DataPreprocessing import DataPreprocessing
-from app.ML_Class_New import ML_Model
-from app.ML_Class_New import load_model
+from app.ML_Class_New import ML_Model, Active_ML_Model, load_model
 from app.SamplingMethods import lowestPercentage
 from app.forms import LabelForm
 from flask_bootstrap import Bootstrap
@@ -78,7 +77,9 @@ def createMLModel(data):
     train_img_names, train_img_label = list(zip(*session['train']))
     train_set = data.loc[train_img_names, :]
     train_set['y_value'] = train_img_label
-    ml_model = ML_Model(train_set, RandomForestClassifier(), DataPreprocessing(True))
+    default_modelPath = 'Models/'
+    default_tokenPath = 'default_model' 
+    ml_model = ML_Model(RandomForestClassifier(), DataPreprocessing(True), train_set, default_tokenPath, default_modelPath)
     return ml_model, train_img_names
 
 def renderLabel(form):
@@ -118,9 +119,12 @@ def initializeAL(form, confidence_break = .7):
     """
     preprocess = DataPreprocessing(True)
     ml_classifier = RandomForestClassifier()
+    default_modelPath = 'Models/'
+    default_tokenPath = 'default_model' 
     data = getData()
-    al_model = Active_ML_Model(data, ml_classifier, preprocess)
-
+    al_model = Active_ML_Model(ml_classifier, preprocess,data,default_tokenPath,default_modelPath)
+    print('DEBUGGING')
+    print(al_model.__dict__) 
     session['confidence'] = 0
     session['confidence_break'] = confidence_break
     session['labels'] = []
