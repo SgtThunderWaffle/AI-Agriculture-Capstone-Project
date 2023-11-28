@@ -47,13 +47,22 @@ class ML_Model:
         """
         self.modeldir = modeldir
         self.set_token(token)
+
+        # Debugging prints
+        print(f"preprocess type: {type(preprocess)}") # added code
+        print(f"preprocess attributes: {dir(preprocess)}") # added code
+
+
         if os.path.exists(modeldir+token+'/model.joblib'):
-            load_model(token)
+            load_model(modeldir,token)
+            print("UH OH ITS NOT MAKING AN ML CLASSIFIER") # added code
+            self.ml_classifier = ml_classifier # added code
+            self.preprocess = preprocess # added code
+            self.train_model(data) # added code
         else:
             self.ml_classifier = ml_classifier
             self.preprocess = preprocess
             self.set_token(token)
-
             self.train_model(data)
     
     def get_x(self,data):
@@ -65,7 +74,8 @@ class ML_Model:
     def train_model(self, data):
         self.X = self.get_x(data)
         self.Y = self.get_y(data)
-        self.ml_model = self.ml_classifier.fit(self.X, self.Y)
+
+        self.ml_model = self.ml_classifier.fit(self.X, self.Y) 
     
     def set_token(self, token):
         self.token = token
@@ -129,7 +139,7 @@ class ML_Model:
             The 10 accuracy values using 10-fold cross-validation.
         """
         from sklearn.model_selection import cross_val_score
-        accuracies = cross_val_score(self.ml_classifier, self.X, self.y, cv=3)
+        accuracies = cross_val_score(self.ml_classifier, self.X, self.Y, cv=3)
         return accuracies
 
     def infoForProgress(self, train_img_names):
@@ -149,7 +159,7 @@ class ML_Model:
         blight_pic : list
             List of images that were predicted as unhealthy.
         """
-        y_actual = self.y
+        y_actual = self.Y
         y_pic = train_img_names
         #y_pred = self.ml_model.predict(self.X)
         #y_pred = list(y_pred)
@@ -256,13 +266,180 @@ class ML_Model:
         graph.write_png(token_dir+'random_estimator.png')
 
 
-class Active_ML_Model(ML_Model):
-    
-    def _init_(self, ml_classifier, preprocess, data, token):
-        ML_Model._init_(self, ml_classifier, preprocess, data, token)
-    
-    def partial_train(data):
-        self.X = numpy.add(self.X, self.get_x(data))
-        self.Y = numpy.add(self.Y, self.get_y(data))
-        
-        self.ml_model = self.ml_classifier.fit(self.X, self.Y)
+class Active_ML_Model:
+    """
+    This class creates an active learning model based on the data sent,
+    data preprocessing, and type of ml classifier.
+
+    """
+    def __init__(self, ml_classifier, preprocess, data, token, modeldir, n_samples = 10):
+        """
+        This function controls the initial creation of the active learning model.
+
+        Parameters
+        ----------
+        data : pandas DataFrame
+            The data the active learning model will be built on.
+        ml_classifier : classifier object
+            The classifier to be used to create the machine learning model.
+        preprocess : Python Function
+            The function used to preprocess the data before model creation.
+        n_samples : int
+            The number of random samples to be used in the initial model creation.
+
+        Attributes
+        -------
+        ml_classifier : classifier object
+            The classifier to be used to create the active learning model.
+        preprocess : Python Function
+            The function used to preprocess the data before model creation.
+        test : pandas DataFrame
+            The training set.
+        train : pandas DataFrame
+            The train set.
+        """
+        from sklearn.utils import shuffle
+        data = shuffle(data)
+        self.sample = data.iloc[:n_samples, :]
+        self.test = data.iloc[n_samples:, :]
+        self.train = None
+        self.ml_classifier = ml_classifier
+        self.preprocess = preprocess
+
+    def Train(self, sample):
+        """
+        This function trains the innitial ml_model
+        Parameters
+        ----------
+        train : pandas DataFrame
+            The training set with labels
+
+        Attributes Added
+        ----------------
+        ml_model : fitted machine learning classifier
+            The machine learning model created using the training data.
+        """
+        import pandas as pd
+        if self.train != None:
+            self.train = pd.concat([self.train, sample])
+        else:
+            self.train = sample
+        self.ml_model = ML_Model(self.train, self.ml_classifier, self.preprocess, self.token, self.modeldir)
+
+    def Continue(self, sampling_method, n_samples = 5):
+        """
+        This function continues the active learning model to the next step.
+
+        Parameters
+        ----------
+        sampling_method : Python Function
+            Determines the next set of samples to send to user.
+        n_samples : int
+            The number of samplest that should be added the the train set.
+
+        Attributes Updated
+        -------
+        ml_classifier : classifier object
+            The classifier to be used to create the active learning model.
+        test : pandas DataFrame
+            The training set.
+        train : pandas DataFrame
+            The train set.
+        """
+        import pandas as pd
+        self.sample, self.test = sampling_method(self.ml_model, n_samples)
+
+    def infoForProgress(self):
+        """
+        This function returns the information nessessary to display the progress of the active learning model.
+
+        Returns
+        -------
+        health_pic : list
+            List of images that were predicted as healthy.
+
+        blight_pic : list
+            List of images that were predicted as unhealthy.
+        """
+        y_actual = self.ml_model.train['y_value']
+        y_pic = list(self.ml_model.train.index)
+        #y_pred, y_prob = self.ml_model.GetKnownPredictions(self.ml_model.train)
+        #y_pred = list(y_pred)
+        health_pic = []
+        blight_pic = []
+        if len(y_pic) == 10:
+            y_pic = y_pic[::-1]
+            for y_idx, y in enumerate(y_actual):
+                if y == 'H':
+                    health_pic.append(y_pic[y_idx])
+                elif y == 'B':
+                    blight_pic.append(y_pic[y_idx])
+        else:
+            y_pic_head = y_pic[:10]
+            y_pic_head_rev = y_pic_head[::-1]
+            y_pic_result = y_pic_head_rev
+            y_pic_tail = y_pic[10:]
+            y_pic_tail_length = len(y_pic_tail)
+            for i in range(5,y_pic_tail_length + 5,5):
+                y_pic_tail_rev = y_pic_tail[:5]
+                y_pic_tail_rev = y_pic_tail_rev[::-1]
+                y_pic_result = y_pic_result + y_pic_tail_rev
+                y_pic_tail = y_pic_tail[5:]
+            for y_idx, y in enumerate(y_actual):
+                if y == 'H':
+                    health_pic.append(y_pic_result[y_idx])
+                elif y == 'B':
+                    blight_pic.append(y_pic_result[y_idx])
+        return health_pic, blight_pic
+
+    def infoForResults(self):
+        """
+        This function returns the information nessessary to display the final results of the active learning model.
+
+        Returns
+        -------
+        health_pic_user : list
+            List of images that were predicted correctly.
+
+        blight_pic_user : list
+            List of images that were predicted incorrectly.
+
+        health_pic : list
+            List of images in the test set that are predicted to being healthy.
+
+        blight_pic : list
+            List of images in the test set that are predicted to being blighted.
+        """
+        health_pic_user, blight_pic_user = self.infoForProgress()
+        test_pic = list(self.ml_model.train.idx)
+        y_pred, y_prob = self.ml_model.GetUnknownPredictions(self.ml_model.test)
+        health_pic = []
+        blight_pic = []
+        health_pic_prob = []
+        blight_pic_prob = []
+        for y_idx, y in enumerate(y_pred):
+            if y == 'H':
+                health_pic.append(test_pic[y_idx])
+                health_pic_prob.append(y_prob[y_idx])
+            elif y == 'B':
+                blight_pic.append(test_pic[y_idx])
+                blight_pic_prob.append(y_prob[y_idx])
+        health_list = list(zip(health_pic,health_pic_prob))
+        blight_list = list(zip(blight_pic,blight_pic_prob))
+        health_list_sorted = sorted(health_list, reverse=True, key = lambda x: x[1])
+        blight_list_sorted = sorted(blight_list, reverse=True, key = lambda x: x[1])
+        new_health_pic, new_health_pic_prob = list(zip(*health_list_sorted))
+        new_blight_pic, new_blight_pic_prob = list(zip(*blight_list_sorted))
+        if health_pic and health_pic_prob:
+            new_health_pic, new_health_pic_prob = list(zip(*health_list_sorted))
+        else:
+            new_health_pic = []
+            new_health_pic_prob = []
+        if blight_pic and blight_pic_prob:
+            new_blight_pic, new_blight_pic_prob = list(zip(*blight_list_sorted))
+        else:
+            new_blight_pic = []
+            new_blight_pic_prob = []
+
+        return health_pic_user, blight_pic_user, new_health_pic, new_blight_pic, new_health_pic_prob, new_blight_pic_prob
+
