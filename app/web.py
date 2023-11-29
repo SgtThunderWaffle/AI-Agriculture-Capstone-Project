@@ -79,7 +79,8 @@ def createMLModel(data):
     train_set['y_value'] = train_img_label
     default_modelPath = 'Models/'
     default_tokenPath = 'default_model' 
-    ml_model = ML_Model(RandomForestClassifier(), DataPreprocessing(True), train_set, default_tokenPath, default_modelPath)
+    #ml_model = ML_Model(RandomForestClassifier(), DataPreprocessing(True), train_set, default_tokenPath, default_modelPath)
+    ml_model.visualize_model(15)
     return ml_model, train_img_names
 
 def renderLabel(form):
@@ -268,6 +269,7 @@ def label():
     """
     form = LabelForm()
     if 'model' not in session:#Start
+        print("initialize al")
         return initializeAL(form, .7)
 
     elif session['queue'] == [] and session['labels'] == []: # Need more pictures
