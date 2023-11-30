@@ -20,7 +20,7 @@ class ML_Model:
 
     """
 
-    def __init__(self, ml_classifier, preprocess, data, token, modeldir, tempdir):
+    def __init__(self, ml_classifier, preprocess, data, token, modeldir):
         """
         This function controls the initial creation of the machine learning model.
 
@@ -47,7 +47,6 @@ class ML_Model:
             The machine learning model created using the training data.
         """
         self.modeldir = modeldir
-        self.tempdir = tempdir
         self.set_token(token)
 
         # Debugging prints
@@ -57,7 +56,7 @@ class ML_Model:
 
         if os.path.exists(modeldir+token+'/model.joblib'):
             load_model(modeldir,token)
-            print("UH OH ITS NOT MAKING AN ML CLASSIFIER") # added code
+            print("ENTERS LOAD MODEL") # added code
             self.ml_classifier = ml_classifier # added code
             self.preprocess = preprocess # added code
             self.train_model(data) # added code
@@ -254,29 +253,27 @@ class ML_Model:
         if not os.path.exists(self.modeldir+self.token+'/'):
             os.mkdir(self.modeldir+self.token+'/')
         dump(self, self.modeldir+self.token+'/model.joblib')
-        estimator_file = self.token+'.dot'
-        estimator_image = self.token+'.png'
-        if os.path.exists(self.tempdir+estimator_file):
-            shutil.copy(self.tempdir+estimator_file, self.modeldir+self.token+'/'+estimator_file)
-            shutil.copy(self.tempdir+estimator_image, self.modeldir+self.token+'/'+estimator_image)
-            self.clear_tempdata()
-            
-    def clear_tempdata(self):
-        if os.path.exists(self.tempdir+self.token+'.dot'):
-            os.remove(self.tempdir+self.token+'.dot')
-            os.remove(self.tempdir+self.token+'.png')
         
     def visualize_model(self, maxdepth):
-        if not os.path.exists(self.tempdir):
-            os.mkdir(self.tempdir)
-        estimator_file = self.tempdir+self.token+'.dot'
-        estimator_image = self.tempdir+self.token+'.png'
-        self.clear_tempdata()
-        #can change to random later maybe
-        estimator = self.ml_model.estimators_[0]
-        export_graphviz(estimator, out_file=estimator_file, max_depth=maxdepth)
-        (graph, ) = pydot.graph_from_dot_file(estimator_file)
-        graph.write_png(estimator_image)
+        if not os.path.exists(self.modeldir):
+            os.mkdir(self.modeldir)
+        if not os.path.exists(self.modeldir+self.token+'/'):
+            os.mkdir(self.modeldir+self.token+'/')
+        token_dir = self.modeldir+self.token+'/'
+        estimator_dir = token_dir+'random_estimator.dot'
+        random_estimator = self.ml_model.estimators_[randint(0,len(self.ml_model.estimators_))]
+        export_graphviz(random_estimator, out_file=estimator_dir, max_depth=maxdepth)
+        (graph, ) = pydot.graph_from_dot_file(estimator_dir)
+
+        current_directory = os.getcwd()
+        print(f"DIRECTORY CURRENTLY############################: {current_directory}")
+
+        static_dir = 'app/'
+        image_filename = 'static/' +'treeimage/' + 'random_estimator.png'
+        graph.write_png(os.path.join(static_dir, image_filename))
+
+        current_directory = os.getcwd()
+        print(f"Current working directory: {current_directory}")
         
 
 
@@ -405,6 +402,25 @@ class Active_ML_Model:
                 elif y == 'B':
                     blight_pic.append(y_pic_result[y_idx])
         return health_pic, blight_pic
+
+    def save_model(self):
+        if not os.path.exists(self.modeldir):
+            os.mkdir(self.modeldir)
+        if not os.path.exists(self.modeldir+self.token+'/'):
+            os.mkdir(self.modeldir+self.token+'/')
+        dump(self, self.modeldir+self.token+'/model.joblib')
+            
+    def visualize_model(self, maxdepth):
+        if not os.path.exists(self.modeldir):
+            os.mkdir(self.modeldir)
+        if not os.path.exists(self.modeldir+self.token+'/'):
+            os.mkdir(self.modeldir+self.token+'/')
+        token_dir = self.modeldir+self.token+'/'
+        estimator_dir = token_dir+'random_estimator.dot'
+        random_estimator = self.ml_model.estimators_[randint(0,len(self.ml_model.estimators_))]
+        export_graphviz(random_estimator, out_file=estimator_dir, max_depth=maxdepth)
+        (graph, ) = pydot.graph_from_dot_file(estimator_dir)
+        graph.write_png(token_dir+'random_estimator.png')
 
     def infoForResults(self):
         """
