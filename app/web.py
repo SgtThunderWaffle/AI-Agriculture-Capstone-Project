@@ -76,7 +76,7 @@ def createMLModel(data):
     """
     train_img_names, train_img_label = list(zip(*session['train']))
     train_set = data.loc[train_img_names, :]
-    train_set['y_value'] = train_img_label
+    train_set = train_set.iloc[:,:-1].assign(label=train_img_label)
     default_modelPath = 'Models/'
     default_tokenPath = 'default_model'
     default_tempPath = 'tempdir/'
@@ -156,7 +156,7 @@ def getNextSetOfImages(form, sampling_method):
     """
     data = getData()
     ml_model, train_img_names = createMLModel(data)
-    test_set = data[data.index.isin(train_img_names) == False]
+    test_set = data[data.index.isin(train_img_names) == False].iloc[:,:-1]
 
     session['sample_idx'], session['test'] = sampling_method(ml_model, test_set, 5)
     session['queue'] = session['sample_idx'].copy()

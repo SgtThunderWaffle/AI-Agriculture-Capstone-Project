@@ -212,6 +212,7 @@ class ML_Model:
         """
         health_pic_user, blight_pic_user = self.infoForProgress(train_img_names)
         test_pic = list(test.index.values)
+        test = test.iloc[:,:-1]
         y_pred, y_prob = self.GetUnknownPredictions(test)
         health_pic = []
         blight_pic = []
