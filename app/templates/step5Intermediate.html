@@ -1,8 +1,19 @@
 {% extends "base.html" %}
+
 {% block content %}
-INTERMEDIATE HTML
-<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/intermediate_format.css') }}">
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/steps.css') }}">
+</head>
 <body>
+    <div class="title">
+         STEP 5: Testing the Model
+    </div>
+
+    <div class="description">
+    </div>
+    
+     <div class="content-box">
 	<div class="container">
 		<div class="row border-bottom">
 			<h1 class="font-weight-light pb-3 mb-2 mt-4">Intermediate
@@ -11,7 +22,7 @@ INTERMEDIATE HTML
 		</div>
 		<div class="text-right">
 			<a href="index.html"><button class="mb-2 mt-4 active_button" data-toggle="tooltip" data-placement="left" title="Go back to the home page and restart training">Home</button></a> 
-			<a href="label.html"><button class="mb-2 mt-4 active_button" data-toggle="tooltip" data-placement="right" title="You can train AI more by labeling more images, which may increase the Machine Learning confidence level">Keep
+			<a href="step4Labeling.html"><button class="mb-2 mt-4 active_button" data-toggle="tooltip" data-placement="right" title="You can train AI more by labeling more images, which may increase the Machine Learning confidence level">Keep
 					Training</button></a>
             <br><br>
 			<h5 class="font-weight-normal">Confidence: {{confidence}}
@@ -19,6 +30,16 @@ INTERMEDIATE HTML
                             <span class="fa fa-info-circle" style="font-size:24px"></span></h5></a>
 
 		</div>
+			<div class="container">
+        <h5 class="font-weight-light text-center text-lg-left mt-4 mb-0">Random Estimator Image:</h5>
+        <div class="row text-center text-lg-left">
+            <div class="col-lg-6 col-md-8 col-12 d-block mb-4 h-100">
+                <img class="img-fluid img-thumbnail"
+                    src="{{ url_for('static', filename='treeimage/random_estimator.png') }}"
+                    alt="Random Estimator Image">
+            </div>
+        </div>
+    </div>
         <div class="container">
 
 			<h5 class="font-weight-light text-center text-lg-left mt-4 mb-0">Healthy(User):
@@ -68,13 +89,28 @@ INTERMEDIATE HTML
 			</div>
 		</div>
 	</div>
-			<footer class="page-footer font-small">
-	    <div class="footer-copyright text-center py-3">&copy; 2020 Copyright:
-	    <a href="/">
-	        CornAI</a>
-	        </div>
-	 </footer>
-	<script>
+
+    </div>
+	
+   <button class="next-button">
+    <a href="step6.html" style="text-decoration: none; color: #FFFFFF;">NEXT</a>
+    </button>
+    
+    <button class="back-button">
+    <a href="step4.html" style="text-decoration: none; color: #FFFFFF;">BACK</a>
+    </button>
+    
+    <div class="dots-container">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="redot"></div>
+        <div class="dot"></div>
+    </div>
+    
+</body>
+<script>
 	var modal = document.getElementById('myModal');
 
 	var images = document.querySelectorAll(".img-thumbnail");
@@ -98,6 +134,5 @@ INTERMEDIATE HTML
         $('[data-toggle="popover"]').popover();
     });
 	</script>
-</body>
 </html>
 {% endblock %}

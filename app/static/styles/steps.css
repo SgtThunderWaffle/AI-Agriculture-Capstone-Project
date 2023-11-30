@@ -35,18 +35,23 @@ body {
 
 .content-box {
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     background-color: #FFFFFF;
-    width: 92vw; /* Adjust the size as needed */
-    height: 63vh; /* Adjust the height as needed */
+    width: 92vw;
+    height: auto; /* Change height to auto */
     margin: 2%;
     margin-top: 6%;
     margin-left: 1%;
     padding: 30px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid rgba(0, 0, 0, 1); /* 2-pixel black border at 100% opacity */
+    border: 2px solid rgba(0, 0, 0, 1);
+    box-sizing: border-box; /* Add box-sizing property */
+}
+
+.img-thumbnail {
+    max-width: 100%; /* Ensure images don't overflow the container */
+    height: auto;
 }
 
 .next-button {
