@@ -44,7 +44,7 @@ def getData():
     print("\nDataFrame after type casting:")
     print(data_mod)
 
-    return data_mod.iloc[:, :-1]
+    return data_mod.iloc[1:, :]
 
 def load_defaultMLmodel(data):
     """
@@ -78,9 +78,9 @@ def createMLModel(data):
     train_set = data.loc[train_img_names, :]
     train_set['y_value'] = train_img_label
     default_modelPath = 'Models/'
-    default_tokenPath = 'default_model' 
-    #ml_model = ML_Model(RandomForestClassifier(), DataPreprocessing(True), train_set, default_tokenPath, default_modelPath)
-    ml_model.visualize_model(15)
+    default_tokenPath = 'default_model'
+    default_tempPath = 'tempdir/'
+    ml_model = ML_Model(RandomForestClassifier(), DataPreprocessing(True), train_set, default_tokenPath, default_modelPath, default_tempPath)
     return ml_model, train_img_names
 
 def renderLabel(form):
@@ -121,9 +121,10 @@ def initializeAL(form, confidence_break = .7):
     preprocess = DataPreprocessing(True)
     ml_classifier = RandomForestClassifier()
     default_modelPath = 'Models/'
-    default_tokenPath = 'default_model' 
+    default_tokenPath = 'default_model'
+    default_tempPath = 'tempdata/'
     data = getData()
-    al_model = Active_ML_Model(ml_classifier, preprocess,data,default_tokenPath,default_modelPath)
+    al_model = Active_ML_Model(ml_classifier,preprocess,data,default_tokenPath,default_modelPath,default_tempPath)
     print('DEBUGGING')
     print(al_model.__dict__) 
     session['confidence'] = 0
