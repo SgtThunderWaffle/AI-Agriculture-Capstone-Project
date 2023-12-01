@@ -1,7 +1,8 @@
 import json
 from json import JSONEncoder
 from uuid import uuid4
-from joblib import dump, load, Memory
+from joblib import dump, load
+import pickle
 import numpy
 import os
 import shutil
@@ -300,16 +301,5 @@ class Active_ML_Model(ML_Model):
     
     def next_samples(self, sampling_method, n_samples=5):
         self.sample, self.test = sampling_method(self.ml_model, n_samples)
-
-
-
-class CustomJSONEncoder(JSONEncoder):
-    default_tempDir = 'tempdata/'
-    def default(self, obj):
-        if isinstance(obj, Active_ML_Model):
-            cached_al_model = memory.cache(obj)
-            return cached_al_model
-        else:
-            JSONEncoder.default(self,obj)
         
 

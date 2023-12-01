@@ -6,7 +6,7 @@ from flask import Flask
 from flask import render_template, flash, redirect, url_for, session, request, jsonify
 from app import app
 from app.DataPreprocessing import DataPreprocessing
-from app.ML_Class_New import ML_Model, Active_ML_Model, CustomJSONEncoder, load_model
+from app.ML_Class_New import ML_Model, Active_ML_Model, load_model
 from app.SamplingMethods import lowestPercentage
 from app.forms import LabelForm
 from flask_bootstrap import Bootstrap
@@ -18,7 +18,7 @@ import boto3
 from io import StringIO
 
 bootstrap = Bootstrap(app)
-app.json_encoder = CustomJSONEncoder
+al_model = None
 
 def getData():
     """
