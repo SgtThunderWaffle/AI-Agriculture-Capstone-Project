@@ -6,7 +6,7 @@ from flask import Flask
 from flask import render_template, flash, redirect, url_for, session, request, jsonify
 from app import app
 from app.DataPreprocessing import DataPreprocessing
-from app.ML_Class_New import ML_Model, Active_ML_Model, load_model
+from app.ML_Class_New import ML_Model, Active_ML_Model, CustomJSONEncoder, load_model
 from app.SamplingMethods import lowestPercentage
 from app.forms import LabelForm
 from flask_bootstrap import Bootstrap
@@ -18,6 +18,7 @@ import boto3
 from io import StringIO
 
 bootstrap = Bootstrap(app)
+app.json_encoder = CustomJSONEncoder
 
 def getData():
     """
@@ -36,17 +37,18 @@ def getData():
     path = 'app/csvOut.csv'
 
     data = pd.read_csv(path, index_col = 0, header = None)
-    data.columns = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16']
+    data.columns = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35']
 
     print("Original DataFrame:")
     print(data)
 
-    data_mod = data.astype({'8': 'int32','9': 'int32','10': 'int32','12': 'int32','14': 'int32'})
+    #data_mod = data.astype({'8': 'int32','9': 'int32','10': 'int32','12': 'int32','14': 'int32'})
+    data_mod = data
 
     print("\nDataFrame after type casting:")
     print(data_mod)
 
-    return data_mod.iloc[:, :-1]
+    return data_mod.iloc[1:, :]
 
 def load_defaultMLmodel(data):
     """
@@ -80,7 +82,7 @@ def createMLModel(data):
     print("createMLmodel(data)ISCALLED#############################################")
     train_img_names, train_img_label = list(zip(*session['train']))
     train_set = data.loc[train_img_names, :]
-    train_set['y_value'] = train_img_label
+    train_set = train_set.iloc[:,:-1].assign(label=train_img_label)
     default_modelPath = 'Models/'
     default_tokenPath = 'default_model'
     default_tempPath = 'tempdata/'
