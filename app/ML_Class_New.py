@@ -256,9 +256,11 @@ class ML_Model:
             self.clear_tempdata()
             
     def clear_tempdata(self):
-        if os.path.exists(self.tempdir+self.token+'.dot'):
+        try:
             os.remove(self.tempdir+self.token+'.dot')
             os.remove(self.tempdir+self.token+'.png')
+        except:
+            print("no temp data to clear")
         
     def visualize_model(self, maxdepth):
         if not os.path.exists(self.tempdir):
