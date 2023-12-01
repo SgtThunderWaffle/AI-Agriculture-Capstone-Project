@@ -1,13 +1,14 @@
 import json
 from json import JSONEncoder
 from uuid import uuid4
-from joblib import dump, load
+from joblib import dump, load, Memory
 import numpy
 import os
 import shutil
 from random import randint
 import pydot
 from sklearn.tree import export_graphviz
+from sklearn.utils import shuffle
 
 def load_model(modeldir, token):
     ml_model = load(modeldir+token+'/model.joblib')
@@ -20,7 +21,7 @@ class ML_Model:
 
     """
 
-    def __init__(self, ml_classifier, preprocess, data, token, modeldir):
+    def __init__(self, ml_classifier, preprocess, data, token, modeldir, tempdir):
         """
         This function controls the initial creation of the machine learning model.
 
@@ -47,24 +48,17 @@ class ML_Model:
             The machine learning model created using the training data.
         """
         self.modeldir = modeldir
+        self.tempdir = tempdir
         self.set_token(token)
 
         # Debugging prints
         print(f"preprocess type: {type(preprocess)}") # added code
         print(f"preprocess attributes: {dir(preprocess)}") # added code
 
-
-        if os.path.exists(modeldir+token+'/model.joblib'):
-            load_model(modeldir,token)
-            print("ENTERS LOAD MODEL") # added code
-            self.ml_classifier = ml_classifier # added code
-            self.preprocess = preprocess # added code
-            self.train_model(data) # added code
-        else:
-            self.ml_classifier = ml_classifier
-            self.preprocess = preprocess
-            self.set_token(token)
-            self.train_model(data)
+        #Updates needed to web.py to decide when to create new model and when to call load_model()
+        self.ml_classifier = ml_classifier
+        self.preprocess = preprocess
+        self.train_model(data)
     
     def get_x(self,data):
         return self.preprocess.fit_transform(data.iloc[:,:-1].values)
@@ -218,6 +212,7 @@ class ML_Model:
         """
         health_pic_user, blight_pic_user = self.infoForProgress(train_img_names)
         test_pic = list(test.index.values)
+        test = test.iloc[:,:-1]
         y_pred, y_prob = self.GetUnknownPredictions(test)
         health_pic = []
         blight_pic = []
@@ -253,223 +248,66 @@ class ML_Model:
         if not os.path.exists(self.modeldir+self.token+'/'):
             os.mkdir(self.modeldir+self.token+'/')
         dump(self, self.modeldir+self.token+'/model.joblib')
+        estimator_file = self.token+'.dot'
+        estimator_image = self.token+'.png'
+        if os.path.exists(self.tempdir+estimator_file):
+            shutil.copy(self.tempdir+estimator_file, self.modeldir+self.token+'/'+estimator_file)
+            shutil.copy(self.tempdir+estimator_image, self.modeldir+self.token+'/'+estimator_image)
+            self.clear_tempdata()
+            
+    def clear_tempdata(self):
+        if os.path.exists(self.tempdir+self.token+'.dot'):
+            os.remove(self.tempdir+self.token+'.dot')
+            os.remove(self.tempdir+self.token+'.png')
         
     def visualize_model(self, maxdepth):
-        if not os.path.exists(self.modeldir):
-            os.mkdir(self.modeldir)
-        if not os.path.exists(self.modeldir+self.token+'/'):
-            os.mkdir(self.modeldir+self.token+'/')
-        token_dir = self.modeldir+self.token+'/'
-        estimator_dir = token_dir+'random_estimator.dot'
-        random_estimator = self.ml_model.estimators_[randint(0,len(self.ml_model.estimators_))]
-        export_graphviz(random_estimator, out_file=estimator_dir, max_depth=maxdepth)
-        (graph, ) = pydot.graph_from_dot_file(estimator_dir)
-
-        current_directory = os.getcwd()
-        print(f"DIRECTORY CURRENTLY############################: {current_directory}")
-
-        static_dir = 'app/'
-        image_filename = 'static/' +'treeimage/' + 'random_estimator.png'
-        graph.write_png(os.path.join(static_dir, image_filename))
-
-        current_directory = os.getcwd()
-        print(f"Current working directory: {current_directory}")
+        if not os.path.exists(self.tempdir):
+            os.mkdir(self.tempdir)
+        estimator_file = self.tempdir+self.token+'.dot'
+        estimator_image = self.tempdir+self.token+'.png'
+        self.clear_tempdata()
+        #can change to random later maybe
+        estimator = self.ml_model.estimators_[0]
+        export_graphviz(estimator, out_file=estimator_file, max_depth=maxdepth, feature_names=['HU Moment 1','HU Moment 2','HU Moment 3','HU Moment 4','HU Moment 5','HU Moment 6','HU Moment 7','Haralick 1','Haralick 2','Haralick 3','Haralick 4','Haralick 5','Haralick 6','Haralick 7','Haralick 8','Haralick 9','Haralick 10','Haralick 11','Haralick 12','Haralick 13','Gray Mean','Green Mean','Red Mean','Blue Mean','Brown/Red','Brown/Green','Brown/Blue','Foreground Pixels','Blighted HSV Pixels','Blighted HSV Ratio','Blighted RGB Pixels','Blighted RGB Ratio','Blighted HSV/RGB Pixels','Blighted HSV/RGB Ratio'])
+        (graph, ) = pydot.graph_from_dot_file(estimator_file)
+        graph.write_png(estimator_image)
         
 
 
-class Active_ML_Model:
+class Active_ML_Model(ML_Model):
     """
     This class creates an active learning model based on the data sent,
     data preprocessing, and type of ml classifier.
 
     """
-    def __init__(self, ml_classifier, preprocess, data, token, modeldir, n_samples = 10):
-        """
-        This function controls the initial creation of the active learning model.
-
-        Parameters
-        ----------
-        data : pandas DataFrame
-            The data the active learning model will be built on.
-        ml_classifier : classifier object
-            The classifier to be used to create the machine learning model.
-        preprocess : Python Function
-            The function used to preprocess the data before model creation.
-        n_samples : int
-            The number of random samples to be used in the initial model creation.
-
-        Attributes
-        -------
-        ml_classifier : classifier object
-            The classifier to be used to create the active learning model.
-        preprocess : Python Function
-            The function used to preprocess the data before model creation.
-        test : pandas DataFrame
-            The training set.
-        train : pandas DataFrame
-            The train set.
-        """
-        from sklearn.utils import shuffle
+    def __init__(self, ml_classifier, preprocess, data, token, modeldir, tempdir, n_samples = 10):
         data = shuffle(data)
-        self.sample = data.iloc[:n_samples, :]
-        self.test = data.iloc[n_samples:, :]
+        sample = data.iloc[:n_samples, :]
+        test = data.iloc[n_samples:, :]
+        super().__init__(ml_classifier, preprocess, sample, token, modeldir, tempdir)
+        self.sample = sample
+        self.test = test
         self.train = None
-        self.ml_classifier = ml_classifier
-        self.preprocess = preprocess
-
-    def Train(self, sample):
-        """
-        This function trains the innitial ml_model
-        Parameters
-        ----------
-        train : pandas DataFrame
-            The training set with labels
-
-        Attributes Added
-        ----------------
-        ml_model : fitted machine learning classifier
-            The machine learning model created using the training data.
-        """
-        import pandas as pd
+    
+    def train_model_add(self, sample):
         if self.train != None:
             self.train = pd.concat([self.train, sample])
         else:
             self.train = sample
-        self.ml_model = ML_Model(self.train, self.ml_classifier, self.preprocess, self.token, self.modeldir)
-
-    def Continue(self, sampling_method, n_samples = 5):
-        """
-        This function continues the active learning model to the next step.
-
-        Parameters
-        ----------
-        sampling_method : Python Function
-            Determines the next set of samples to send to user.
-        n_samples : int
-            The number of samplest that should be added the the train set.
-
-        Attributes Updated
-        -------
-        ml_classifier : classifier object
-            The classifier to be used to create the active learning model.
-        test : pandas DataFrame
-            The training set.
-        train : pandas DataFrame
-            The train set.
-        """
-        import pandas as pd
+        self.train_model(data)
+    
+    def next_samples(self, sampling_method, n_samples=5):
         self.sample, self.test = sampling_method(self.ml_model, n_samples)
 
-    def infoForProgress(self):
-        """
-        This function returns the information nessessary to display the progress of the active learning model.
 
-        Returns
-        -------
-        health_pic : list
-            List of images that were predicted as healthy.
 
-        blight_pic : list
-            List of images that were predicted as unhealthy.
-        """
-        y_actual = self.ml_model.train['y_value']
-        y_pic = list(self.ml_model.train.index)
-        #y_pred, y_prob = self.ml_model.GetKnownPredictions(self.ml_model.train)
-        #y_pred = list(y_pred)
-        health_pic = []
-        blight_pic = []
-        if len(y_pic) == 10:
-            y_pic = y_pic[::-1]
-            for y_idx, y in enumerate(y_actual):
-                if y == 'H':
-                    health_pic.append(y_pic[y_idx])
-                elif y == 'B':
-                    blight_pic.append(y_pic[y_idx])
+class CustomJSONEncoder(JSONEncoder):
+    default_tempDir = 'tempdata/'
+    def default(self, obj):
+        if isinstance(obj, Active_ML_Model):
+            cached_al_model = memory.cache(obj)
+            return cached_al_model
         else:
-            y_pic_head = y_pic[:10]
-            y_pic_head_rev = y_pic_head[::-1]
-            y_pic_result = y_pic_head_rev
-            y_pic_tail = y_pic[10:]
-            y_pic_tail_length = len(y_pic_tail)
-            for i in range(5,y_pic_tail_length + 5,5):
-                y_pic_tail_rev = y_pic_tail[:5]
-                y_pic_tail_rev = y_pic_tail_rev[::-1]
-                y_pic_result = y_pic_result + y_pic_tail_rev
-                y_pic_tail = y_pic_tail[5:]
-            for y_idx, y in enumerate(y_actual):
-                if y == 'H':
-                    health_pic.append(y_pic_result[y_idx])
-                elif y == 'B':
-                    blight_pic.append(y_pic_result[y_idx])
-        return health_pic, blight_pic
-
-    def save_model(self):
-        if not os.path.exists(self.modeldir):
-            os.mkdir(self.modeldir)
-        if not os.path.exists(self.modeldir+self.token+'/'):
-            os.mkdir(self.modeldir+self.token+'/')
-        dump(self, self.modeldir+self.token+'/model.joblib')
-            
-    def visualize_model(self, maxdepth):
-        if not os.path.exists(self.modeldir):
-            os.mkdir(self.modeldir)
-        if not os.path.exists(self.modeldir+self.token+'/'):
-            os.mkdir(self.modeldir+self.token+'/')
-        token_dir = self.modeldir+self.token+'/'
-        estimator_dir = token_dir+'random_estimator.dot'
-        random_estimator = self.ml_model.estimators_[randint(0,len(self.ml_model.estimators_))]
-        export_graphviz(random_estimator, out_file=estimator_dir, max_depth=maxdepth)
-        (graph, ) = pydot.graph_from_dot_file(estimator_dir)
-        graph.write_png(token_dir+'random_estimator.png')
-
-    def infoForResults(self):
-        """
-        This function returns the information nessessary to display the final results of the active learning model.
-
-        Returns
-        -------
-        health_pic_user : list
-            List of images that were predicted correctly.
-
-        blight_pic_user : list
-            List of images that were predicted incorrectly.
-
-        health_pic : list
-            List of images in the test set that are predicted to being healthy.
-
-        blight_pic : list
-            List of images in the test set that are predicted to being blighted.
-        """
-        health_pic_user, blight_pic_user = self.infoForProgress()
-        test_pic = list(self.ml_model.train.idx)
-        y_pred, y_prob = self.ml_model.GetUnknownPredictions(self.ml_model.test)
-        health_pic = []
-        blight_pic = []
-        health_pic_prob = []
-        blight_pic_prob = []
-        for y_idx, y in enumerate(y_pred):
-            if y == 'H':
-                health_pic.append(test_pic[y_idx])
-                health_pic_prob.append(y_prob[y_idx])
-            elif y == 'B':
-                blight_pic.append(test_pic[y_idx])
-                blight_pic_prob.append(y_prob[y_idx])
-        health_list = list(zip(health_pic,health_pic_prob))
-        blight_list = list(zip(blight_pic,blight_pic_prob))
-        health_list_sorted = sorted(health_list, reverse=True, key = lambda x: x[1])
-        blight_list_sorted = sorted(blight_list, reverse=True, key = lambda x: x[1])
-        new_health_pic, new_health_pic_prob = list(zip(*health_list_sorted))
-        new_blight_pic, new_blight_pic_prob = list(zip(*blight_list_sorted))
-        if health_pic and health_pic_prob:
-            new_health_pic, new_health_pic_prob = list(zip(*health_list_sorted))
-        else:
-            new_health_pic = []
-            new_health_pic_prob = []
-        if blight_pic and blight_pic_prob:
-            new_blight_pic, new_blight_pic_prob = list(zip(*blight_list_sorted))
-        else:
-            new_blight_pic = []
-            new_blight_pic_prob = []
-
-        return health_pic_user, blight_pic_user, new_health_pic, new_blight_pic, new_health_pic_prob, new_blight_pic_prob
+            JSONEncoder.default(self,obj)
+        
 
