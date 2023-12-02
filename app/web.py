@@ -6,7 +6,7 @@ from flask import Flask
 from flask import render_template, flash, redirect, url_for, session, request, jsonify
 from app import app
 from app.DataPreprocessing import DataPreprocessing
-from app.ML_Class_New import ML_Model, Active_ML_Model, load_model
+from app.ML_Class_New import ML_Model, Active_ML_Model, load_model, tempload_model, generate_token
 from app.SamplingMethods import lowestPercentage
 from app.forms import LabelForm
 from flask_bootstrap import Bootstrap
@@ -63,7 +63,7 @@ def load_defaultMLmodel(data):
     ml_model = load_model("../Models/", "default_model")
     return ml_model
 
-def createMLModel(data):
+def createMLModel(data,train):
     """
     Prepares the training set and creates a machine learning model using the training set.
 
@@ -84,11 +84,17 @@ def createMLModel(data):
     train_set = data.loc[train_img_names, :]
     train_set = train_set.iloc[:,:-1].assign(label=train_img_label)
     default_modelPath = 'Models/'
-    default_tokenPath = 'default_model'
+    default_tokenPath = session['token']
     default_tempPath = 'tempdata/'
-    ml_model = ML_Model(RandomForestClassifier(), DataPreprocessing(True), train_set, default_tokenPath, default_modelPath, default_tempPath)
-    ml_model.visualize_model(5)
-    return ml_model, train_img_names
+    al_model = tempload_model(default_tempPath,default_tokenPath)
+    if train:
+        al_model.train_model_add(train_set)
+    print("\n\n\n\n\nAL Model Y: ",end='')
+    print(al_model.Y)
+    print("\n\n\n\n")
+    al_model.tempsave_model()
+    al_model.visualize_model(5)
+    return al_model, train_img_names
 
 def renderLabel(form):
     """
@@ -130,10 +136,11 @@ def initializeAL(form, confidence_break = .7):
     preprocess = DataPreprocessing(True)
     ml_classifier = RandomForestClassifier()
     default_modelPath = 'Models/'
-    default_tokenPath = 'default_model' 
+    default_tokenPath = generate_token()
     default_tempPath = 'tempdata/'
     data = getData()
     al_model = Active_ML_Model(ml_classifier, preprocess,data,default_tokenPath,default_modelPath,default_tempPath)
+    al_model.tempsave_model()
     print('DEBUGGING')
     print(al_model.__dict__) 
     session['confidence'] = 0
@@ -143,6 +150,9 @@ def initializeAL(form, confidence_break = .7):
     session['test'] = list(al_model.test.index.values)
     session['train'] = al_model.train
     session['model'] = True
+    session['token'] = default_tokenPath
+    session['modeldir'] = default_modelPath
+    session['tempdir'] = default_tempPath
     session['queue'] = list(al_model.sample.index.values)
     return renderLabel(form)
 
@@ -164,10 +174,10 @@ def getNextSetOfImages(form, sampling_method):
     """
     print("getNextSetOfImages(form, sampling_method)ISCALLED#############################################")
     data = getData()
-    ml_model, train_img_names = createMLModel(data)
+    ml_model, train_img_names = createMLModel(data,False)
     test_set = data[data.index.isin(train_img_names) == False]
 
-    session['sample_idx'], session['test'] = sampling_method(ml_model, test_set, 5)
+    session['sample_idx'], session['test'] = sampling_method(ml_model, test_set.iloc[:,:-1], 5)
     session['queue'] = session['sample_idx'].copy()
 
     return renderLabel(form)
@@ -190,13 +200,13 @@ def prepairResults(form):
     session['labels'].append(form.choice.data)
     session['sample'] = tuple(zip(session['sample_idx'], session['labels']))
 
-    if session['train'] != None:
-        session['train'] = session['train'] + session['sample']
-    else:
-        session['train'] = session['sample']
+    #if session['train'] != None:
+        #session['train'] = session['train'] + session['sample']
+    #else:
+    session['train'] = session['sample']
 
     data = getData()
-    ml_model, train_img_names = createMLModel(data)
+    ml_model, train_img_names = createMLModel(data,True)
 
     session['confidence'] = np.mean(ml_model.K_fold())
     session['labels'] = []

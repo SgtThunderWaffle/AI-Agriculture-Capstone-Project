@@ -10,10 +10,18 @@ from random import randint
 import pydot
 from sklearn.tree import export_graphviz
 from sklearn.utils import shuffle
+import pandas as pd
 
 def load_model(modeldir, token):
     ml_model = load(modeldir+token+'/model.joblib')
     return ml_model
+    
+def tempload_model(tempdir, token):
+    ml_model = load(tempdir+token+'.joblib')
+    return ml_model
+    
+def generate_token():
+    return str(uuid4())
 
 class ML_Model:
     """
@@ -157,6 +165,7 @@ class ML_Model:
         """
         y_actual = self.Y
         y_pic = train_img_names
+        print("\n\n\n\n\n\n\n\n\n\n")
         #y_pred = self.ml_model.predict(self.X)
         #y_pred = list(y_pred)
         health_pic = []
@@ -169,7 +178,7 @@ class ML_Model:
                 elif y == 'B':
                     blight_pic.append(y_pic[y_idx])
         else:
-            y_pic_head = y_pic[:10]
+            y_pic_head = y_pic
             y_pic_head_rev = y_pic_head[::-1]
             y_pic_result = y_pic_head_rev
             y_pic_tail = y_pic[10:]
@@ -256,10 +265,16 @@ class ML_Model:
             shutil.copy(self.tempdir+estimator_image, self.modeldir+self.token+'/'+estimator_image)
             self.clear_tempdata()
             
+    def tempsave_model(self):
+        if not os.path.exists(self.tempdir):
+            os.mkdir(self.tempdir)
+        dump(self, self.tempdir+self.token+'.joblib')
+          
     def clear_tempdata(self):
         try:
             os.remove(self.tempdir+self.token+'.dot')
             os.remove(self.tempdir+self.token+'.png')
+            os.remove(self.tempdir+self.token+'.joblib')
         except:
             print("no temp data to clear")
         
@@ -268,7 +283,7 @@ class ML_Model:
             os.mkdir(self.tempdir)
         estimator_file = self.tempdir+self.token+'.dot'
         estimator_image = self.tempdir+self.token+'.png'
-        self.clear_tempdata()
+        #self.clear_tempdata()
         #can change to random later maybe
         estimator = self.ml_model.estimators_[0]
         export_graphviz(estimator, out_file=estimator_file, max_depth=maxdepth, feature_names=['HU Moment 1','HU Moment 2','HU Moment 3','HU Moment 4','HU Moment 5','HU Moment 6','HU Moment 7','Haralick 1','Haralick 2','Haralick 3','Haralick 4','Haralick 5','Haralick 6','Haralick 7','Haralick 8','Haralick 9','Haralick 10','Haralick 11','Haralick 12','Haralick 13','Gray Mean','Green Mean','Red Mean','Blue Mean','Brown/Red','Brown/Green','Brown/Blue','Foreground Pixels','Blighted HSV Pixels','Blighted HSV Ratio','Blighted RGB Pixels','Blighted RGB Ratio','Blighted HSV/RGB Pixels','Blighted HSV/RGB Ratio'])
@@ -293,11 +308,11 @@ class Active_ML_Model(ML_Model):
         self.train = None
     
     def train_model_add(self, sample):
-        if self.train != None:
+        if isinstance(self.train, pd.DataFrame):
             self.train = pd.concat([self.train, sample])
         else:
             self.train = sample
-        self.train_model(data)
+        self.train_model(self.train)
     
     def next_samples(self, sampling_method, n_samples=5):
         self.sample, self.test = sampling_method(self.ml_model, n_samples)
