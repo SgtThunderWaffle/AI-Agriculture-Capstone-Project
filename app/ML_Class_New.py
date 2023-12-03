@@ -144,11 +144,6 @@ class ML_Model:
             The 10 accuracy values using 10-fold cross-validation.
         """
         from sklearn.model_selection import cross_val_score
-        print("\n\n\n\n\nSelf.X: ")
-        print(self.X)
-        print("\n\n\n\n\nSelf.Y:" )
-        print(self.Y)
-        print("\n\n\n\n")
         accuracies = cross_val_score(self.ml_classifier, self.X, self.Y, cv=3)
         return accuracies
 
