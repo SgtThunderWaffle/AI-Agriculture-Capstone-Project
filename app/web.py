@@ -16,9 +16,16 @@ import os
 import numpy as np
 import boto3
 from io import StringIO
+import json
 
 bootstrap = Bootstrap(app)
 al_model = None
+
+def load_paths():
+    with open('app/path_config.json','r') as f:
+        paths = json.load(f)
+        session['modeldir'] = paths['modelPath']
+        session['tempdir'] = paths['tempPath']
 
 def getData():
     """
@@ -151,8 +158,6 @@ def initializeAL(form, confidence_break = .7):
     session['train'] = al_model.train
     session['model'] = True
     session['token'] = default_tokenPath
-    session['modeldir'] = default_modelPath
-    session['tempdir'] = default_tempPath
     session['queue'] = list(al_model.sample.index.values)
     return renderLabel(form)
 
@@ -228,6 +233,7 @@ def home():
     Operates the root (/) and index(index.html) web pages.
     """
     session.pop('model', None)
+    load_paths()
     return render_template('index.html')
 
 @app.route('/aiExplained.html')
