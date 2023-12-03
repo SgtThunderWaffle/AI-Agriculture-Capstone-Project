@@ -35,10 +35,10 @@
 				{%for i in range(0, h_list_length)%}
 				<div class="col-lg-3 col-md-4 col-6 d-block mb-4 h-100">
 					{% if healthy_list[i] == "null"%}
-					<br><br>
+					<br><br>
 					{% else %}
 					<img class="img-fluid img-thumbnail"
-						src="/static/images/{{healthy_list[i]}}"
+						src="{{picturedir}}{{healthy_list[i]}}"
 						alt="">
 					<h6 class="font-weight-normal">Confidence: {{healthy_conf_list[i]}}
 					{% endif %}
@@ -67,7 +67,7 @@
 					<br><br>
 					{% else %}
 					<img class="img-fluid img-thumbnail"
-						src="/static/images/{{unhealthy_list[i]}}"
+						src="{{picturedir}}{{unhealthy_list[i]}}"
 						alt="">
 					<h6 class="font-weight-normal">Confidence: {{unhealthy_conf_list[i]}}
 					{% endif %}

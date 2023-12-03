@@ -54,7 +54,7 @@
 				{%for i in health_user%}
 				<div class="col-lg-3 col-md-4 col-6 d-block mb-4 h-100">
 					<img class="img-fluid img-rounded"
-						src="/static/images/{{i}}"
+						src="{{picturedir}}{{i}}"
 						alt="">
 				</div>
 				{%endfor%}
@@ -78,7 +78,7 @@
 				{%for i in blight_user%}
 				<div class="col-lg-3 col-md-4 col-6 d-block mb-4 h-100">
 					<img class="img-fluid img-rounded"
-						src="/static/images/{{i}}"
+						src="{{picturedir}}{{i}}"
 						alt="">
 				</div>
 				{%endfor%}
@@ -104,7 +104,7 @@
 				{%for i in range(0, healthyNum)%}
 				<div id="healthy_checkboxes" class="col-lg-3 col-md-4 col-6 d-block mb-4 h-100">
 					<img class="img-fluid img-rounded"
-						src="/static/images/{{health_test[i]}}"
+						src="{{picturedir}}{{health_test[i]}}"
 						alt="">
 					<h6 class="font-weight-normal">Individual Confidence: {{"{:.0%}".format(h_prob[i])}}
 					<h6 class="font-weight-normal">Disagree with the prediction?
@@ -133,7 +133,7 @@
 				{%for i in range(0, unhealthyNum)%}
 				<div id="unhealthy_checkboxes" class="col-lg-3 col-md-4 col-6 d-block mb-4 h-100">
 					<img class="img-fluid img-rounded"
-						src="/static/images/{{unhealth_test[i]}}"
+						src="{{picturedir}}{{unhealth_test[i]}}"
 						alt="">
 					<h6 class="font-weight-normal">Individual Confidence: {{"{:.0%}".format(b_prob[i])}}
 					<h6 class="font-weight-normal">Disagree with the prediction?
