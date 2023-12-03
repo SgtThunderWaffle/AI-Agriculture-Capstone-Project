@@ -40,21 +40,21 @@ def getData():
     #s3 = boto3.client('s3')
     #path = 's3://cornimagesbucket/csvOut.csv'
 
-    print("getData()ISCALLED#############################################")
+    #print("getData()ISCALLED#############################################")
 
     path = 'app/csvOut.csv'
 
     data = pd.read_csv(path, index_col = 0, header = None)
     data.columns = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35']
 
-    print("Original DataFrame:")
-    print(data)
+    #print("Original DataFrame:")
+    #print(data)
 
     #data_mod = data.astype({'8': 'int32','9': 'int32','10': 'int32','12': 'int32','14': 'int32'})
     data_mod = data
 
-    print("\nDataFrame after type casting:")
-    print(data_mod)
+    #print("\nDataFrame after type casting:")
+    #print(data_mod)
 
     return data_mod.iloc[1:, :]
 
@@ -67,11 +67,11 @@ def load_defaultMLmodel(data):
     ml_model : ML_Model class object
         the model loaded
     """
-    print("load_defaultMLmodel(data)ISCALLED#############################################")
+    #print("load_defaultMLmodel(data)ISCALLED#############################################")
     ml_model = load_model("../Models/", "default_model")
     return ml_model
 
-def createMLModel(data,train):
+def createMLModel(data,doTrain):
     """
     Prepares the training set and creates a machine learning model using the training set.
 
@@ -87,7 +87,7 @@ def createMLModel(data,train):
     train_img_names : String
         The names of the images.
     """
-    print("createMLmodel(data)ISCALLED#############################################")
+    #print("createMLmodel(data)ISCALLED#############################################")
     train_img_names, train_img_label = list(zip(*session['train']))
     train_set = data.loc[train_img_names, :]
     train_set = train_set.iloc[:,:-1].assign(label=train_img_label)
@@ -95,11 +95,11 @@ def createMLModel(data,train):
     default_tokenPath = session['token']
     default_tempPath = 'tempdata/'
     al_model = tempload_model(default_tempPath,default_tokenPath)
-    if train:
+    if doTrain:
         al_model.train_model_add(train_set)
-    print("\n\n\n\n\nAL Model Y: ",end='')
-    print(al_model.Y)
-    print("\n\n\n\n")
+        for name in train_img_names:
+            al_model.train_files.append(name)
+            
     al_model.tempsave_model()
     al_model.visualize_model(5)
     return al_model, train_img_names
@@ -118,7 +118,7 @@ def renderLabel(form):
     render_template : flask function
         renders the label.html webpage.
     """
-    print("renderLabel(form)ISCALLED#############################################")
+    #print("renderLabel(form)ISCALLED#############################################")
     queue = session['queue']
     img = queue.pop()
     session['queue'] = queue
@@ -140,7 +140,7 @@ def initializeAL(form, confidence_break = .7):
     render_template : flask function
         renders the label.html webpage.
     """
-    print("intializeAL(form, confidence_break =.7)ISCALLED#############################################")
+    #print("intializeAL(form, confidence_break =.7)ISCALLED#############################################")
     preprocess = DataPreprocessing(True)
     ml_classifier = RandomForestClassifier()
     default_modelPath = 'Models/'
@@ -149,8 +149,8 @@ def initializeAL(form, confidence_break = .7):
     data = getData()
     al_model = Active_ML_Model(ml_classifier, preprocess,data,default_tokenPath,default_modelPath,default_tempPath)
     al_model.tempsave_model()
-    print('DEBUGGING')
-    print(al_model.__dict__) 
+    #print('DEBUGGING')
+    #print(al_model.__dict__) 
     session['confidence'] = 0
     session['confidence_break'] = confidence_break
     session['labels'] = []
@@ -178,7 +178,7 @@ def getNextSetOfImages(form, sampling_method):
     render_template : flask function
         renders the label.html webpage.
     """
-    print("getNextSetOfImages(form, sampling_method)ISCALLED#############################################")
+    #print("getNextSetOfImages(form, sampling_method)ISCALLED#############################################")
     data = getData()
     ml_model, train_img_names = createMLModel(data,False)
     test_set = data[data.index.isin(train_img_names) == False]
@@ -202,7 +202,7 @@ def prepairResults(form):
     render_template : flask function
         renders the appropriate webpage based on new confidence score.
     """
-    print("prepairResults(form)ISCALLED#############################################")
+    #print("prepairResults(form)ISCALLED#############################################")
     session['labels'].append(form.choice.data)
     session['sample'] = tuple(zip(session['sample_idx'], session['labels']))
 
@@ -218,18 +218,18 @@ def prepairResults(form):
     session['labels'] = []
 
     if session['confidence'] < session['confidence_break']:
-        health_pic, blight_pic = ml_model.infoForProgress(train_img_names)
+        health_pic, blight_pic = ml_model.infoForProgress()
         return render_template('step5Intermediate.html', form = form, confidence = "{:.2%}".format(round(session['confidence'],4)), picturedir = session['imagedir'], health_user = health_pic, blight_user = blight_pic, healthNum_user = len(health_pic), blightNum_user = len(blight_pic))
     else:
         test_set = data.loc[session['test'], :]
-        health_pic_user, blight_pic_user, health_pic, blight_pic, health_pic_prob, blight_pic_prob = ml_model.infoForResults(train_img_names, test_set)
+        health_pic_user, blight_pic_user, health_pic, blight_pic, health_pic_prob, blight_pic_prob = ml_model.infoForResults(test_set)
         return render_template('step5Final.html', form = form, confidence = "{:.2%}".format(round(session['confidence'],4)), picturedir = session['imagedir'], health_user = health_pic_user, blight_user = blight_pic_user, healthNum_user = len(health_pic_user), blightNum_user = len(blight_pic_user), health_test = health_pic, unhealth_test = blight_pic, healthyNum = len(health_pic), unhealthyNum = len(blight_pic), healthyPct = "{:.2%}".format(len(health_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), unhealthyPct = "{:.2%}".format(len(blight_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), h_prob = health_pic_prob, b_prob = blight_pic_prob)
 
 @app.route("/", methods=['GET'])
 
 @app.route("/index.html",methods=['GET'])
 def home():
-    print("RUNNING INDEX.HTML APP ROUTE")
+    #print("RUNNING INDEX.HTML APP ROUTE")
     """
     Operates the root (/) and index(index.html) web pages.
     """
@@ -239,7 +239,7 @@ def home():
 
 @app.route('/aiExplained.html')
 def ai_explained():
-    print("RUNNING AIEXPLAINED APP ROUTE")
+    #print("RUNNING AIEXPLAINED APP ROUTE")
     return render_template('aiExplained.html')
 
 @app.route("/applicationExplained.html")
@@ -297,10 +297,10 @@ def step4Labeling():
     Operates the step4Labeling.html web page.
     Where Labeling of Leaf as Healthy/Unhealthy Happens.
     """
-    print("RUNNING STEP4LABELING.HTML APP ROUTE")
+    #print("RUNNING STEP4LABELING.HTML APP ROUTE")
     form = LabelForm()
     if 'model' not in session:#Start
-        print("initialize al")
+        #print("initialize al")
         return initializeAL(form, .7)
 
     elif session['queue'] == [] and session['labels'] == []: # Need more pictures
@@ -334,7 +334,7 @@ def step6Feedback(h_list,u_list,h_conf_list,u_conf_list):
     """
     Operates the step6Feedback.html web page.
     """
-    print("RUNNING STEP6FEEDBACK.HTML APP ROUTE")
+    #print("RUNNING STEP6FEEDBACK.HTML APP ROUTE")
     h_feedback_result = list(h_list.split(","))
     u_feedback_result = list(u_list.split(","))
     h_conf_result = list(h_conf_list.split(","))
