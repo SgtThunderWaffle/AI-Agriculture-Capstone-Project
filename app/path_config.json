@@ -1,4 +1,5 @@
 {
     "modelPath": "Models/",
-    "tempPath": "tempdata/"
+    "tempPath": "tempdata/",
+    "imagesPath": "static/images/"
 }

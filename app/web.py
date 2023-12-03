@@ -26,7 +26,8 @@ def load_paths():
         paths = json.load(f)
         session['modeldir'] = paths['modelPath']
         session['tempdir'] = paths['tempPath']
-
+        session['imagedir'] = paths['imagesPath']
+        
 def getData():
     """
     Gets and returns the csvOut.csv as a DataFrame.
@@ -121,7 +122,7 @@ def renderLabel(form):
     queue = session['queue']
     img = queue.pop()
     session['queue'] = queue
-    return render_template(url_for('step4Labeling'), form = form, picture = img, confidence = session['confidence'])
+    return render_template(url_for('step4Labeling'), form = form, picturedir = session['imagedir'], picture = img, confidence = session['confidence'])
 
 def initializeAL(form, confidence_break = .7):
     """
@@ -218,11 +219,11 @@ def prepairResults(form):
 
     if session['confidence'] < session['confidence_break']:
         health_pic, blight_pic = ml_model.infoForProgress(train_img_names)
-        return render_template('step5Intermediate.html', form = form, confidence = "{:.2%}".format(round(session['confidence'],4)), health_user = health_pic, blight_user = blight_pic, healthNum_user = len(health_pic), blightNum_user = len(blight_pic))
+        return render_template('step5Intermediate.html', form = form, confidence = "{:.2%}".format(round(session['confidence'],4)), picturedir = session['imagedir'], health_user = health_pic, blight_user = blight_pic, healthNum_user = len(health_pic), blightNum_user = len(blight_pic))
     else:
         test_set = data.loc[session['test'], :]
         health_pic_user, blight_pic_user, health_pic, blight_pic, health_pic_prob, blight_pic_prob = ml_model.infoForResults(train_img_names, test_set)
-        return render_template('step5Final.html', form = form, confidence = "{:.2%}".format(round(session['confidence'],4)), health_user = health_pic_user, blight_user = blight_pic_user, healthNum_user = len(health_pic_user), blightNum_user = len(blight_pic_user), health_test = health_pic, unhealth_test = blight_pic, healthyNum = len(health_pic), unhealthyNum = len(blight_pic), healthyPct = "{:.2%}".format(len(health_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), unhealthyPct = "{:.2%}".format(len(blight_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), h_prob = health_pic_prob, b_prob = blight_pic_prob)
+        return render_template('step5Final.html', form = form, confidence = "{:.2%}".format(round(session['confidence'],4)), picturedir = session['imagedir'], health_user = health_pic_user, blight_user = blight_pic_user, healthNum_user = len(health_pic_user), blightNum_user = len(blight_pic_user), health_test = health_pic, unhealth_test = blight_pic, healthyNum = len(health_pic), unhealthyNum = len(blight_pic), healthyPct = "{:.2%}".format(len(health_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), unhealthyPct = "{:.2%}".format(len(blight_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), h_prob = health_pic_prob, b_prob = blight_pic_prob)
 
 @app.route("/", methods=['GET'])
 
@@ -311,7 +312,7 @@ def step4Labeling():
     elif form.is_submitted() and session['queue'] != []: #Still gathering labels
         session['labels'].append(form.choice.data)
         return renderLabel(form)
-
+    
     return render_template('step4Labeling.html', form=form)
 
 @app.route("/step5Intermediate.html")
@@ -341,7 +342,7 @@ def step6Feedback(h_list,u_list,h_conf_list,u_conf_list):
     h_length = len(h_feedback_result)
     u_length = len(u_feedback_result)
     
-    return render_template('step6Feedback.html', healthy_list = h_feedback_result, unhealthy_list = u_feedback_result, healthy_conf_list = h_conf_result, unhealthy_conf_list = u_conf_result, h_list_length = h_length, u_list_length = u_length)
+    return render_template('step6Feedback.html', picturedir = session['imagedir'], healthy_list = h_feedback_result, unhealthy_list = u_feedback_result, healthy_conf_list = h_conf_result, unhealthy_conf_list = u_conf_result, h_list_length = h_length, u_list_length = u_length)
 
 '''
 @app.route("/label.html",methods=['GET', 'POST'])

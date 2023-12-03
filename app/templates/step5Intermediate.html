@@ -52,7 +52,7 @@
 				{%for i in health_user%}
 				<div class="col-lg-3 col-md-4 col-6 d-block mb-4 h-100">
 					<img class="img-fluid img-thumbnail"
-						src="/static/images/{{i}}"
+						src="{{picturedir}}{{i}}"
 						alt="">
 				</div>
 				{%endfor%}
@@ -76,12 +76,12 @@
 				{%for i in blight_user%}
 				<div class="col-lg-3 col-md-4 col-6 d-block mb-4 h-100">
 					<img class="img-fluid img-thumbnail"
-						src="/static/images/{{i}}"
+						src="{{picturedir}}{{i}}"
 						alt="">
-				</div>
+				</div>
 				{%endfor%}
 				<div id="myModal" class="modal">
-
+
 					<span class="close">&times;</span>
 
 					<img class="modal-content" id="imgset">

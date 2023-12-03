@@ -130,3 +130,4 @@ dmypy.json
 
 # images
 app/static/images/
+images/
