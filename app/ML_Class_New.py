@@ -59,6 +59,7 @@ class ML_Model:
         self.modeldir = modeldir
         self.tempdir = tempdir
         self.set_token(token)
+        self.train_files = []
 
         # Debugging prints
         print(f"preprocess type: {type(preprocess)}") # added code
@@ -143,10 +144,15 @@ class ML_Model:
             The 10 accuracy values using 10-fold cross-validation.
         """
         from sklearn.model_selection import cross_val_score
+        print("\n\n\n\n\nSelf.X: ")
+        print(self.X)
+        print("\n\n\n\n\nSelf.Y:" )
+        print(self.Y)
+        print("\n\n\n\n")
         accuracies = cross_val_score(self.ml_classifier, self.X, self.Y, cv=3)
         return accuracies
 
-    def infoForProgress(self, train_img_names):
+    def infoForProgress(self):
         """
         This function returns the information nessessary to display the progress of the active learning model.
 
@@ -164,8 +170,7 @@ class ML_Model:
             List of images that were predicted as unhealthy.
         """
         y_actual = self.Y
-        y_pic = train_img_names
-        print("\n\n\n\n\n\n\n\n\n\n")
+        y_pic = self.train_files
         #y_pred = self.ml_model.predict(self.X)
         #y_pred = list(y_pred)
         health_pic = []
@@ -195,7 +200,7 @@ class ML_Model:
                     blight_pic.append(y_pic_result[y_idx])
         return health_pic, blight_pic
 
-    def infoForResults(self, train_img_names, test):
+    def infoForResults(self, test):
         """
         This function returns the information nessessary to display the final results of the active learning model.
 
@@ -220,7 +225,7 @@ class ML_Model:
         blight_pic : list
             List of images in the test set that are predicted to being blighted.
         """
-        health_pic_user, blight_pic_user = self.infoForProgress(train_img_names)
+        health_pic_user, blight_pic_user = self.infoForProgress()
         test_pic = list(test.index.values)
         test = test.iloc[:,:-1]
         y_pred, y_prob = self.GetUnknownPredictions(test)
