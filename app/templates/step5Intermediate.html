@@ -21,7 +21,7 @@
                             <span class="fa fa-info-circle" style="font-size:24px"></span></h1></a>
 		</div>
 		<div class="text-right">
-            <span data-toggle="tooltip" data-placement="left" style="width:300px" title="This is your current model ID. It can be entered at the home page to resume training after saved.">{{token}}</span>
+            <span data-toggle="tooltip" data-placement="left" style="width:300px" title="This is your current model ID. It can be entered at the home page to resume training after being saved.">{{token}}</span>
             <a id="save-button"><button class="mb-2 mt-4 active_button" data-toggle="tooltip" data-placement="left" title="Save model by token and return to homepage">Save</button></a>
             <a href="index.html"><button class="mb-2 mt-4 active_button" data-toggle="tooltip" data-placement="left" title="Go back to the home page and restart training">Home</button></a> 
 			<a href="step4Labeling.html"><button class="mb-2 mt-4 active_button" data-toggle="tooltip" data-placement="right" title="You can train AI more by labeling more images, which may increase the Machine Learning confidence level">Keep
@@ -138,11 +138,12 @@
 	</script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script>
-    $('a#save-button').on('click', function(e) {
-        e.preventDefault();
-        $.getJSON('save-model', function(data) {});
-        location.href = 'index.html';
-        return false;
+    $(document).ready(function() {
+        $('a#save-button').on('click', function(e) {
+            e.preventDefault();
+            $.getJSON('save-model', function(data) {});
+            return false;
+        });
     });
 </script>
 </html>
