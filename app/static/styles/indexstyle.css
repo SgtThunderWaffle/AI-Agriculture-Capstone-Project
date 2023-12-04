@@ -5,6 +5,13 @@ body {
     background-attachment: fixed;
 }
 
+#container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center
+}
+
 .title {
     display: block;
     position: absolute;
@@ -32,6 +39,14 @@ body {
     text-align: left;
 }
 
+.error-text {
+    position: relative;
+    color: rgba(255, 129, 129, 1);
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer
+}
+
 .first-button {
     position: absolute;
     bottom: 5%;
@@ -40,6 +55,40 @@ body {
     color: #FFFFFF; /* RGB FFFFFF at 100% opacity */
     font-size: 24px;
     padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+.load-button {
+    position: relative;
+    background-color: rgba(97, 97, 97, 1); /* RGB 616161 at 100% opacity */
+    color: #FFFFFF; /* RGB FFFFFF at 100% opacity */
+    font-size: 24px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+.token-enter {
+    position: relative;
+    border: none;
+    cursor: pointer;
+}
+
+.load-box-sub {
+    position: relative;
+    background-color: rgba(97, 97, 97, 1); /* RGB 616161 at 100% opacity */
+    color: #FFFFFF; /* RGB FFFFFF at 100% opacity */
+    font-size: 24px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+.load-box {
+    position: absolute;
+    bottom: 5%;
+    left: 5%;
     border: none;
     cursor: pointer;
 }
