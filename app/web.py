@@ -9,6 +9,7 @@ from app.DataPreprocessing import DataPreprocessing
 from app.ML_Class_New import ML_Model, Active_ML_Model, load_model, tempload_model, generate_token
 from app.SamplingMethods import lowestPercentage
 from app.forms import LabelForm
+from joblib import dump, load
 from flask_bootstrap import Bootstrap
 from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
@@ -68,7 +69,7 @@ def load_defaultMLmodel(data):
         the model loaded
     """
     #print("load_defaultMLmodel(data)ISCALLED#############################################")
-    ml_model = load_model("../Models/", "default_model")
+    ml_model = load_model("../Models/", "../tempdata/", "default_model")
     return ml_model
 
 def createMLModel(data,doTrain):
@@ -99,11 +100,23 @@ def createMLModel(data,doTrain):
         al_model.train_model_add(train_set)
         for name in train_img_names:
             al_model.train_files.append(name)
-            
+    
     al_model.tempsave_model()
     al_model.visualize_model(5)
     return al_model, train_img_names
-
+    
+def prepare_loadedModel(al_model):
+    session['train'] = al_model.train
+    session['token'] = al_model.token
+    session['test'] = list(al_model.test.index.values)
+    session['sample_idx'] = list(al_model.sample.index.values)
+    session['queue'] = list(al_model.sample.index.values)
+    session['sample'] = al_model.train
+    session['labels'] = al_model.labels
+    session['hastrained'] = al_model.hastrained
+    session['confidence_break'] = .7
+    session['model'] = True
+    
 def renderLabel(form):
     """
     prepairs a render_template to show the label.html web page.
@@ -119,6 +132,7 @@ def renderLabel(form):
         renders the label.html webpage.
     """
     #print("renderLabel(form)ISCALLED#############################################")
+    load_paths()
     queue = session['queue']
     img = queue.pop()
     session['queue'] = queue
@@ -160,7 +174,8 @@ def initializeAL(form, confidence_break = .7):
     session['model'] = True
     session['token'] = default_tokenPath
     session['queue'] = list(al_model.sample.index.values)
-    session['hastrained'] = False
+    session['hastrained'] = al_model.hastrained
+    
     return renderLabel(form)
 
 def getNextSetOfImages(form, sampling_method):
@@ -189,7 +204,7 @@ def getNextSetOfImages(form, sampling_method):
 
     return renderLabel(form)
 
-def prepairResults(form):
+def prepairResults(form,train):
     """
     Creates the new machine learning model and gets the confidence of the machine learning model.
 
@@ -216,7 +231,9 @@ def prepairResults(form):
     session['train'] = session['sample']
 
     data = getData()
-    ml_model, train_img_names = createMLModel(data,True)
+    ml_model, train_img_names = createMLModel(data,train)
+    ml_model.labels = session['labels']
+    ml_model.hastrained = True
 
     session['confidence'] = np.mean(ml_model.K_fold())
     session['labels'] = []
@@ -226,10 +243,13 @@ def prepairResults(form):
         return render_template('step5Intermediate.html', form = form, token=session['token'], confidence = "{:.2%}".format(round(session['confidence'],4)), hastrained = old_hastrained, picturedir = session['imagedir'], health_user = health_pic, blight_user = blight_pic, healthNum_user = len(health_pic), blightNum_user = len(blight_pic))
     else:
         test_set = data.loc[session['test'], :]
+        ml_model.is_finalized = True
         health_pic_user, blight_pic_user, health_pic, blight_pic, health_pic_prob, blight_pic_prob = ml_model.infoForResults(test_set)
         return render_template('step5Final.html', form = form, token=session['token'], confidence = "{:.2%}".format(round(session['confidence'],4)), hastrained = old_hastrained, picturedir = session['imagedir'], health_user = health_pic_user, blight_user = blight_pic_user, healthNum_user = len(health_pic_user), blightNum_user = len(blight_pic_user), health_test = health_pic, unhealth_test = blight_pic, healthyNum = len(health_pic), unhealthyNum = len(blight_pic), healthyPct = "{:.2%}".format(len(health_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), unhealthyPct = "{:.2%}".format(len(blight_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), h_prob = health_pic_prob, b_prob = blight_pic_prob)
 
 @app.route("/", methods=['GET'])
+def redirect_to_index():
+    return redirect("index.html")
 
 @app.route("/index.html",methods=['GET'])
 def home():
@@ -239,6 +259,7 @@ def home():
     """
     #session.pop('model', None)
     load_paths()
+    #print("\n\n\n\n\n"+session['modeldir']+"\n\n\n\n")
     if 'model' in session:
         default_tempPath = session['tempdir']
         default_tokenPath = session['token']
@@ -246,7 +267,21 @@ def home():
         al_model.clear_tempdata()
         session.clear()
     
-    return render_template('index.html')
+    return render_template('index.html',error_visibility="hidden")
+    
+@app.route("/index.html", methods=['POST'])
+def load_prev_model():
+    load_paths()
+    token = request.form['token-enter']
+    al_model = load_model(session['modeldir'],session['tempdir'],token)
+    if al_model == None:
+        return render_template('index.html',error_visibility="")
+    else:
+        prepare_loadedModel(al_model)
+        form = LabelForm()
+        return(prepairResults(form,False))
+
+#@app.route('/load-model', methods=['POST'])
 
 @app.route('/aiExplained.html')
 def ai_explained():
@@ -318,7 +353,7 @@ def step4Labeling():
         return getNextSetOfImages(form, lowestPercentage)
 
     elif form.is_submitted() and session['queue'] == []:# Finished Labeling
-        return prepairResults(form)
+        return prepairResults(form,True)
 
     elif form.is_submitted() and session['queue'] != []: #Still gathering labels
         session['labels'].append(form.choice.data)
@@ -340,9 +375,8 @@ def save_model():
         default_tokenPath = session['token']
         al_model = tempload_model(default_tempPath,default_tokenPath)
         al_model.save_model()
-        al_model.clear_tempdata()
         session.clear()
-    print("that worked")
+        redirect('index.html')
     return("placeholder")
 
 @app.route("/step5Final.html")

@@ -20,17 +20,21 @@
     
     <div class="load-box">
         <div id="container">
-            <div class="error-text" hidden>
+            <div class="error-text" style="visibility:{{error_visibility}}">
                 Model not found. Perhaps a wrong token was entered?
             </div>
             <br>
-            <div class="load-box-sub">
-                <input type="text" id="token-enter" name="token-enter">
-            </div>
-            <br>
-            <button class="load-button">
-                <a style="text-decoration: none; color: #FFFFFF;">LOAD TOKEN</a>
-            </button>
+            <form method="POST">
+                <div id="container">
+                    <div class="load-box-sub">
+                        <input type="text" id="token-enter" name="token-enter"></textarea>
+                    </div>
+                    <br>
+                    <button class="load-button">
+                        <a id="load-model-button" style="text-decoration: none; color: #FFFFFF;">LOAD TOKEN</a>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -50,5 +54,9 @@
     </script>
 
 </body>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+    
+</script>
 </html>
 {% endblock %}
