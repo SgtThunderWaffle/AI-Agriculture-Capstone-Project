@@ -91,9 +91,9 @@ def createMLModel(data,doTrain):
     train_img_names, train_img_label = list(zip(*session['train']))
     train_set = data.loc[train_img_names, :]
     train_set = train_set.iloc[:,:-1].assign(label=train_img_label)
-    default_modelPath = 'Models/'
+    default_modelPath = session['modeldir']
     default_tokenPath = session['token']
-    default_tempPath = 'tempdata/'
+    default_tempPath = session['tempdir']
     al_model = tempload_model(default_tempPath,default_tokenPath)
     if doTrain:
         al_model.train_model_add(train_set)
@@ -160,6 +160,7 @@ def initializeAL(form, confidence_break = .7):
     session['model'] = True
     session['token'] = default_tokenPath
     session['queue'] = list(al_model.sample.index.values)
+    session['hastrained'] = False
     return renderLabel(form)
 
 def getNextSetOfImages(form, sampling_method):
@@ -209,6 +210,9 @@ def prepairResults(form):
     #if session['train'] != None:
         #session['train'] = session['train'] + session['sample']
     #else:
+    old_hastrained = session['hastrained']
+    session['hastrained'] = True
+    
     session['train'] = session['sample']
 
     data = getData()
@@ -219,11 +223,11 @@ def prepairResults(form):
 
     if session['confidence'] < session['confidence_break']:
         health_pic, blight_pic = ml_model.infoForProgress()
-        return render_template('step5Intermediate.html', form = form, confidence = "{:.2%}".format(round(session['confidence'],4)), picturedir = session['imagedir'], health_user = health_pic, blight_user = blight_pic, healthNum_user = len(health_pic), blightNum_user = len(blight_pic))
+        return render_template('step5Intermediate.html', form = form, token=session['token'], confidence = "{:.2%}".format(round(session['confidence'],4)), hastrained = old_hastrained, picturedir = session['imagedir'], health_user = health_pic, blight_user = blight_pic, healthNum_user = len(health_pic), blightNum_user = len(blight_pic))
     else:
         test_set = data.loc[session['test'], :]
         health_pic_user, blight_pic_user, health_pic, blight_pic, health_pic_prob, blight_pic_prob = ml_model.infoForResults(test_set)
-        return render_template('step5Final.html', form = form, confidence = "{:.2%}".format(round(session['confidence'],4)), picturedir = session['imagedir'], health_user = health_pic_user, blight_user = blight_pic_user, healthNum_user = len(health_pic_user), blightNum_user = len(blight_pic_user), health_test = health_pic, unhealth_test = blight_pic, healthyNum = len(health_pic), unhealthyNum = len(blight_pic), healthyPct = "{:.2%}".format(len(health_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), unhealthyPct = "{:.2%}".format(len(blight_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), h_prob = health_pic_prob, b_prob = blight_pic_prob)
+        return render_template('step5Final.html', form = form, token=session['token'], confidence = "{:.2%}".format(round(session['confidence'],4)), hastrained = old_hastrained, picturedir = session['imagedir'], health_user = health_pic_user, blight_user = blight_pic_user, healthNum_user = len(health_pic_user), blightNum_user = len(blight_pic_user), health_test = health_pic, unhealth_test = blight_pic, healthyNum = len(health_pic), unhealthyNum = len(blight_pic), healthyPct = "{:.2%}".format(len(health_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), unhealthyPct = "{:.2%}".format(len(blight_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), h_prob = health_pic_prob, b_prob = blight_pic_prob)
 
 @app.route("/", methods=['GET'])
 
@@ -233,8 +237,15 @@ def home():
     """
     Operates the root (/) and index(index.html) web pages.
     """
-    session.pop('model', None)
+    #session.pop('model', None)
     load_paths()
+    if 'model' in session:
+        default_tempPath = session['tempdir']
+        default_tokenPath = session['token']
+        al_model = tempload_model(default_tempPath,default_tokenPath)
+        al_model.clear_tempdata()
+        session.clear()
+    
     return render_template('index.html')
 
 @app.route('/aiExplained.html')
@@ -297,7 +308,7 @@ def step4Labeling():
     Operates the step4Labeling.html web page.
     Where Labeling of Leaf as Healthy/Unhealthy Happens.
     """
-    #print("RUNNING STEP4LABELING.HTML APP ROUTE")
+    print("RUNNING STEP4LABELING.HTML APP ROUTE")
     form = LabelForm()
     if 'model' not in session:#Start
         #print("initialize al")
@@ -321,6 +332,18 @@ def step5Intermediate():
     Operates the step5.html web page.
     """
     return render_template('step5Intermediate.html')
+    
+@app.route("/save-model")
+def save_model():
+    if 'model' in session:
+        default_tempPath = session['tempdir']
+        default_tokenPath = session['token']
+        al_model = tempload_model(default_tempPath,default_tokenPath)
+        al_model.save_model()
+        al_model.clear_tempdata()
+        session.clear()
+    print("that worked")
+    return("placeholder")
 
 @app.route("/step5Final.html")
 def step5Final():

@@ -17,6 +17,22 @@
    <button class="first-button">
     <a href="aiExplained.html" style="text-decoration: none; color: #FFFFFF;">NEXT</a>
     </button>
+    
+    <div class="load-box">
+        <div id="container">
+            <div class="error-text" hidden>
+                Model not found. Perhaps a wrong token was entered?
+            </div>
+            <br>
+            <div class="load-box-sub">
+                <input type="text" id="token-enter" name="token-enter">
+            </div>
+            <br>
+            <button class="load-button">
+                <a style="text-decoration: none; color: #FFFFFF;">LOAD TOKEN</a>
+            </button>
+        </div>
+    </div>
 
 <script>
     $(document).ready(function(){
@@ -24,6 +40,10 @@
 
         $('.first-button').on('click', function () {
             $('.animated-icon1').toggleClass('open');
+        });
+        
+        $('.load-button').on('click', function() {
+        
         });
 
     });
