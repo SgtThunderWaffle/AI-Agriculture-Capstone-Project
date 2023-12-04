@@ -39,3 +39,4 @@ yarl
 opencv-python
 matplotlib
 mahotas
+flask_socketio
