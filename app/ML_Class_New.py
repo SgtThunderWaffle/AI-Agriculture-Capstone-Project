@@ -12,8 +12,13 @@ from sklearn.tree import export_graphviz
 from sklearn.utils import shuffle
 import pandas as pd
 
-def load_model(modeldir, token):
-    ml_model = load(modeldir+token+'/model.joblib')
+def load_model(modeldir, tempdir, token):
+    ml_model = None
+    if os.path.exists(modeldir+token+'/model.joblib'):
+        ml_model = load(modeldir+token+'/model.joblib')
+        shutil.copy(modeldir+token+'/'+token+'.dot', tempdir+token+'.dot')
+        shutil.copy(modeldir+token+'/'+token+'.png', tempdir+token+'.png')
+        shutil.copy(modeldir+token+'/model.joblib', tempdir+token+'.joblib')
     return ml_model
     
 def tempload_model(tempdir, token):
@@ -60,6 +65,9 @@ class ML_Model:
         self.tempdir = tempdir
         self.set_token(token)
         self.train_files = []
+        self.labels = []
+        self.hastrained = False
+        self.is_finalized = False
 
         # Debugging prints
         print(f"preprocess type: {type(preprocess)}") # added code
@@ -261,6 +269,7 @@ class ML_Model:
         estimator_file = self.token+'.dot'
         estimator_image = self.token+'.png'
         if os.path.exists(self.tempdir+estimator_file):
+            print("this works")
             shutil.copy(self.tempdir+estimator_file, self.modeldir+self.token+'/'+estimator_file)
             shutil.copy(self.tempdir+estimator_image, self.modeldir+self.token+'/'+estimator_image)
             self.clear_tempdata()
