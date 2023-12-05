@@ -69,7 +69,9 @@ def load_defaultMLmodel(data):
         the model loaded
     """
     #print("load_defaultMLmodel(data)ISCALLED#############################################")
-    ml_model = load_model("../Models/", "../tempdata/", "default_model")
+    default_modelPath = session['modeldir']
+    default_tempPath = session['tempdir']
+    ml_model = load_model(default_modelPath, default_tempPath, "default_model")
     return ml_model
 
 def createMLModel(data,doTrain):
@@ -267,15 +269,18 @@ def home():
         al_model.clear_tempdata()
         session.clear()
     
-    return render_template('index.html',error_visibility="hidden")
+    return render_template('index.html',error_visibility="hidden",error_text="")
     
 @app.route("/index.html", methods=['POST'])
 def load_prev_model():
     load_paths()
     token = request.form['token-enter']
+    if os.path.exists(session['tempdir']+token+'.joblib'):
+        print("not working?")
+        return render_template('index.html',error_visibility="",error_text="Model already loaded. Please wait until available.")
     al_model = load_model(session['modeldir'],session['tempdir'],token)
     if al_model == None:
-        return render_template('index.html',error_visibility="")
+        return render_template('index.html',error_visibility="",error_text="Model not found. Perhaps a wrong token was entered?")
     else:
         prepare_loadedModel(al_model)
         form = LabelForm()
@@ -376,8 +381,8 @@ def save_model():
         al_model = tempload_model(default_tempPath,default_tokenPath)
         al_model.save_model()
         session.clear()
-        redirect('index.html')
-    return("placeholder")
+    
+    return(redirect("index.html"))
 
 @app.route("/step5Final.html")
 def step5Final():

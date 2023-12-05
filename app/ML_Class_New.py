@@ -269,7 +269,6 @@ class ML_Model:
         estimator_file = self.token+'.dot'
         estimator_image = self.token+'.png'
         if os.path.exists(self.tempdir+estimator_file):
-            print("this works")
             shutil.copy(self.tempdir+estimator_file, self.modeldir+self.token+'/'+estimator_file)
             shutil.copy(self.tempdir+estimator_image, self.modeldir+self.token+'/'+estimator_image)
             self.clear_tempdata()
