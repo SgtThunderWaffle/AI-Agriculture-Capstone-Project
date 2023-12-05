@@ -141,7 +141,8 @@
     $(document).ready(function() {
         $('a#save-button').on('click', function(e) {
             e.preventDefault();
-            $.getJSON('save-model', function(data) {});
+            //$.getJSON('save-model', function(data) {});
+            location.href = "save-model"
             return false;
         });
     });
