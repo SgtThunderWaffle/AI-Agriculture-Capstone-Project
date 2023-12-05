@@ -39,7 +39,7 @@
         <div class="row text-center text-lg-left">
             <div class="col-lg-6 col-md-8 col-12 d-block mb-4 h-100">
                 <img class="img-fluid img-thumbnail"
-                    src="{{ url_for('static', filename='treeimage/random_estimator.png') }}"
+                    src="{{ url_for('tree_img', filename=token+'.png') }}"
                     alt="Random Estimator Image">
             </div>
         </div>
@@ -256,7 +256,8 @@
     $(document).ready(function() {
         $('a#save-button').on('click', function(e) {
             e.preventDefault();
-            $.getJSON('save-model', function(data) {});
+            //$.getJSON('save-model', function(data) {});
+            location.href = "save-model";
             return false;
         });
     });

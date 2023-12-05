@@ -27,6 +27,13 @@ def tempload_model(tempdir, token):
     
 def generate_token():
     return str(uuid4())
+    
+def is_locked(tempdir, token):
+    locked = False
+    if os.path.exists(tempdir+token+'.joblib'):
+        locked = True
+    return locked
+
 
 class ML_Model:
     """
