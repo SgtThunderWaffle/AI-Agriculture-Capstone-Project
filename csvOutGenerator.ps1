@@ -9,7 +9,7 @@ $csvTraining = Import-Csv $TrainCSVPath
 $images = Get-ChildItem $ImagesDir -File
 
 $imagesSampled = @()
-while ($imagesSampled.Count -lt 25) {
+while ($imagesSampled.Count -lt 50) {
     $entry = ($csvTraining | Get-Random).fileName
     if ($imagesSampled -notcontains $entry) {
         Copy-Item "$((Get-Item $ImagesDir).FullName)/$entry" "$PSScriptRoot/app/static/images/"
