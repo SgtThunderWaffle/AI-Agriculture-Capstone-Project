@@ -131,3 +131,6 @@ dmypy.json
 # images
 app/static/images/
 images/
+
+# csvOut
+app/csvOut.csv
