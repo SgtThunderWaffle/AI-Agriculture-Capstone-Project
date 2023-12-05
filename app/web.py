@@ -2,11 +2,11 @@
 """@package web
 This method is responsible for the inner workings of the different web pages in this application.
 """
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask import render_template, flash, redirect, url_for, session, request, jsonify
 from app import app
 from app.DataPreprocessing import DataPreprocessing
-from app.ML_Class_New import ML_Model, Active_ML_Model, load_model, tempload_model, generate_token
+from app.ML_Class_New import ML_Model, Active_ML_Model, load_model, tempload_model, generate_token, is_locked
 from app.SamplingMethods import lowestPercentage
 from app.forms import LabelForm
 from joblib import dump, load
@@ -265,8 +265,11 @@ def home():
     if 'model' in session:
         default_tempPath = session['tempdir']
         default_tokenPath = session['token']
-        al_model = tempload_model(default_tempPath,default_tokenPath)
-        al_model.clear_tempdata()
+        try:
+            al_model = tempload_model(default_tempPath,default_tokenPath)
+            al_model.clear_tempdata()
+        except:
+            print("model not present; skipping")
         session.clear()
     
     return render_template('index.html',error_visibility="hidden",error_text="")
@@ -275,8 +278,8 @@ def home():
 def load_prev_model():
     load_paths()
     token = request.form['token-enter']
-    if os.path.exists(session['tempdir']+token+'.joblib'):
-        print("not working?")
+    print(is_locked(session['tempdir'],token))
+    if is_locked(session['tempdir'],token):
         return render_template('index.html',error_visibility="",error_text="Model already loaded. Please wait until available.")
     al_model = load_model(session['modeldir'],session['tempdir'],token)
     if al_model == None:
@@ -383,6 +386,23 @@ def save_model():
         session.clear()
     
     return(redirect("index.html"))
+    
+@app.route("/clear-model")
+def clear_model():
+    print("\n\n\ncalled\n\n")
+    if 'model' in session:
+        default_tempPath = session['tempdir']
+        default_tokenPath = session['token']
+        try:
+            al_model = tempload_model(default_tempPath,default_tokenPath)
+            al_model.clear_tempdata()
+        except:
+            print("model not present; skipping")
+        session.clear()
+    
+@app.route("/<path:filename>")
+def tree_img(filename):
+    return send_from_directory(str(os.path.abspath(session['tempdir'])), filename, as_attachment=True)
 
 @app.route("/step5Final.html")
 def step5Final():
