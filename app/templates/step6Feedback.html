@@ -84,13 +84,8 @@
 	</div>
     </div>
 
-   <button class="next-button">
-    <a href="applicationExplained.html" style="text-decoration: none; color: #FFFFFF;">NEXT</a>
-    </button>
-    
-    <button class="back-button">
-    <a href="step5.html" style="text-decoration: none; color: #FFFFFF;">BACK</a>
-    </button>
+	<button class="next-button">NEXT</button>
+    <button class="back-button">BACK</button>
     
     <div class="dots-container">
         <div class="dot"></div>
@@ -129,6 +124,14 @@
             window.location.href = '/index.html';                           
         });
     });
+	 $('.next-button').on('click', function () {
+            window.location.href = '/applicationExplained.html';
+        });
+
+        $('.back-button').on('click', function () {
+            window.location.href = '/step4.html';
+        });
+
  
 	</script>
 </body>

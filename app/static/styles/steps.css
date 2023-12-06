@@ -54,6 +54,18 @@ body {
     height: auto;
 }
 
+.label-button {
+    position: absolute;
+    bottom: 5%;
+    right: 10%;
+    background-color: rgba(97, 97, 97, 1); /* RGB 616161 at 100% opacity */
+    color: #FFFFFF; /* RGB FFFFFF at 100% opacity */
+    font-size: 24px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
 .next-button {
     position: absolute;
     bottom: 5%;
