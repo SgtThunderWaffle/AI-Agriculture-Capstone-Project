@@ -90,6 +90,18 @@ body {
     cursor: pointer;
 }
 
+.start-button {
+    position: absolute;
+    bottom: 5%;
+    right: 10%;
+    background-color: rgba(97, 97, 97, 1); /* RGB 616161 at 100% opacity */
+    color: #FFFFFF; /* RGB FFFFFF at 100% opacity */
+    font-size: 24px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
 @media (max-width: 768px) {
     .title {
         display: block;

@@ -400,9 +400,17 @@ def clear_model():
             print("model not present; skipping")
         session.clear()
     
-@app.route("/<path:filename>")
-def tree_img(filename):
-    return send_from_directory(str(os.path.abspath(session['tempdir'])), filename, as_attachment=True)
+@app.route("/<istree>/<filename>")
+def tree_img(filename, istree):
+    if istree == "True":
+        print("\n\nis tree\n")
+        return send_from_directory(str(os.path.abspath(session['tempdir'])), filename, as_attachment=True)
+    else:
+        print("\n\nis not tree\n")
+        if "static" in session['imagedir']:
+            return send_from_directory(session['imagedir'], filename, as_attachment=True)
+        else:
+            return send_from_directory(str(os.path.abspath(session['imagedir'])), filename, as_attachment=True)
 
 @app.route("/step5Final.html")
 def step5Final():
