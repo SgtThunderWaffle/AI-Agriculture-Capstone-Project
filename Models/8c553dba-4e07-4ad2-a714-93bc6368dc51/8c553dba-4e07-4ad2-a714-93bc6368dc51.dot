@@ -1,9 +1,0 @@
-digraph Tree {
-node [shape=box, fontname="helvetica"] ;
-edge [fontname="helvetica"] ;
-0 [label="Blighted HSV Pixels <= -0.68\ngini = 0.42\nsamples = 7\nvalue = [3, 7]"] ;
-1 [label="gini = 0.0\nsamples = 2\nvalue = [3, 0]"] ;
-0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
-2 [label="gini = 0.0\nsamples = 5\nvalue = [0, 7]"] ;
-0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
-}
