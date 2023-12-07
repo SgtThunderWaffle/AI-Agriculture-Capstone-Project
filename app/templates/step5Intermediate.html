@@ -46,6 +46,16 @@
                 <img class="img-fluid img-thumbnail"
                     src="{{ url_for('tree_img', filename=token+'.png', istree=True) }}"
                     alt="Random Estimator Image">
+                <hr><hr>
+                <div>
+                    <span data-toggle="tooltip" data-placement="left" style="width:300px" title="The top of each square contains the name of the image feature being measured. It will either be measured as greater than, less than, or equal to a cutoff point, which determines what branch of the tree it goes down.">Features</span>
+                    <br>
+                    <span data-toggle="tooltip" data-placement="left" style="width:300px" title="In decision trees, the gini index shows the chance of a picture going through the tree being sent down the wrong branch. The maximum is 0.5, meaning that going on a wrong branch has a 50/50 chance.">GINI Index</span>
+                    <br>
+                    <span data-toggle="tooltip" data-placement="left" style="width:300px" title="The 'samples' value shows the number of images that made it to that branch of the tree.">Sample Count</span>
+                    <br>
+                    <span data-toggle="tooltip" data-placement="left" style="width:300px" title="'Values' indicates the range of values compared for whatever feature the branch measures.">Value Range</span>
+                </div>
             </div>
         </div>
     </div>
