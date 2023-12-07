@@ -81,8 +81,8 @@ class ML_Model:
         self.is_finalized = False
 
         # Debugging prints
-        print(f"preprocess type: {type(preprocess)}") # added code
-        print(f"preprocess attributes: {dir(preprocess)}") # added code
+        #print(f"preprocess type: {type(preprocess)}") # added code
+        #print(f"preprocess attributes: {dir(preprocess)}") # added code
 
         #Updates needed to web.py to decide when to create new model and when to call load_model()
         self.ml_classifier = ml_classifier
@@ -209,10 +209,8 @@ class ML_Model:
                 y_pic_tail = y_pic_tail[5:]
             for y_idx, y in enumerate(y_actual):
                 if y == 'H':
-                    print(y_idx, len(y_pic_result))
                     health_pic.append(y_pic_result[y_idx])
                 elif y == 'B':
-                    print(y_idx, len(y_pic_result))
                     blight_pic.append(y_pic_result[y_idx])
         return health_pic, blight_pic
 
