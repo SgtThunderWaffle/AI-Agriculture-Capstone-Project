@@ -28,8 +28,15 @@
 					Training</button></a>
             <br><br>
 			<h5 class="font-weight-normal">Confidence: {{confidence}}
-			<a href="javascript:void(0)" data-toggle="popover" data-trigger="focus" data-content="The value of confidence represents how well the AI can predict the currently labeled images.">
-                            <span class="fa fa-info-circle" style="font-size:24px"></span></h5></a>
+			<a href="javascript:void(0)" data-toggle="tooltip" data-trigger="focus" title="The value of confidence represents how well the AI can predict the currently labeled images.">
+                            <span class="fa fa-info-circle" style="font-size:24px"></span></a></h5>
+            <hr>
+            <h5 class="font-weight-normal">Pretrained Confidence: {{default_confidence}}
+                <a href="javascript:void(0)" data-toggle="tooltip" data-trigger="focus" title="This is the confidence value returned by a pretrained model for reference and comparison.">
+                    <span class="fa fa-info-circle" style="font-size:24px">
+                    </span>
+                </a>
+            </h5>
 
 		</div>
 			<div class="container">
