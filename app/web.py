@@ -102,7 +102,7 @@ def prepare_loadedModel(al_model):
     session['sample'] = al_model.train
     session['labels'] = al_model.labels
     session['hastrained'] = al_model.hastrained
-    session['confidence_break'] = .7
+    session['confidence_break'] = .85
     session['model'] = True
     
 def renderLabel(form):
@@ -126,7 +126,7 @@ def renderLabel(form):
     session['queue'] = queue
     return render_template(url_for('step4Labeling'), form = form, picturedir = session['imagedir'], picture = img, confidence = session['confidence'])
 
-def initializeAL(form, confidence_break = .7):
+def initializeAL(form, confidence_break = .85):
     """
     Initializes the active learning model and sets up the webpage with everything needed to run the application.
 
@@ -347,7 +347,7 @@ def step4Labeling():
     form = LabelForm()
     if 'model' not in session:#Start
         #print("initialize al")
-        return initializeAL(form, .7)
+        return initializeAL(form, .85)
 
     elif session['queue'] == [] and session['labels'] == []: # Need more pictures
         return getNextSetOfImages(form, lowestPercentage)
