@@ -6,7 +6,7 @@ from flask import Flask, send_from_directory
 from flask import render_template, flash, redirect, url_for, session, request, jsonify
 from app import app
 from app.DataPreprocessing import DataPreprocessing
-from app.ML_Class_New import ML_Model, Active_ML_Model, load_model, tempload_model, generate_token, is_locked
+from app.ML_Class_New import ML_Model, Active_ML_Model, load_model, load_default_model, tempload_model, generate_token, is_locked
 from app.SamplingMethods import lowestPercentage
 from app.forms import LabelForm
 from joblib import dump, load
@@ -21,6 +21,7 @@ import json
 
 bootstrap = Bootstrap(app)
 al_model = None
+default_ml_model = None
 
 def load_paths():
     with open('app/path_config.json','r') as f:
@@ -58,21 +59,6 @@ def getData():
     #print(data_mod)
 
     return data_mod.iloc[1:, :]
-
-def load_defaultMLmodel(data):
-    """
-    Loads the default machine learning model from it's special token folder
-    
-    Returns
-    -------
-    ml_model : ML_Model class object
-        the model loaded
-    """
-    #print("load_defaultMLmodel(data)ISCALLED#############################################")
-    default_modelPath = session['modeldir']
-    default_tempPath = session['tempdir']
-    ml_model = load_model(default_modelPath, default_tempPath, "default_model")
-    return ml_model
 
 def createMLModel(data,doTrain):
     """
@@ -236,18 +222,22 @@ def prepairResults(form,train):
     ml_model, train_img_names = createMLModel(data,train)
     ml_model.labels = session['labels']
     ml_model.hastrained = True
+    
+    if 'default_confidence' not in session:
+        default_ml_model = load_default_model(session['modeldir'])
+        session['default_confidence'] = np.mean(default_ml_model.K_fold())
 
     session['confidence'] = np.mean(ml_model.K_fold())
     session['labels'] = []
 
     if session['confidence'] < session['confidence_break']:
         health_pic, blight_pic = ml_model.infoForProgress()
-        return render_template('step5Intermediate.html', form = form, token=session['token'], confidence = "{:.2%}".format(round(session['confidence'],4)), hastrained = old_hastrained, picturedir = session['imagedir'], health_user = health_pic, blight_user = blight_pic, healthNum_user = len(health_pic), blightNum_user = len(blight_pic))
+        return render_template('step5Intermediate.html', form = form, token=session['token'], confidence = "{:.2%}".format(round(session['confidence'],4)), default_confidence = "{:.2%}".format(round(session['default_confidence'],4)), hastrained = old_hastrained, picturedir = session['imagedir'], health_user = health_pic, blight_user = blight_pic, healthNum_user = len(health_pic), blightNum_user = len(blight_pic))
     else:
         test_set = data.loc[session['test'], :]
         ml_model.is_finalized = True
         health_pic_user, blight_pic_user, health_pic, blight_pic, health_pic_prob, blight_pic_prob = ml_model.infoForResults(test_set)
-        return render_template('step5Final.html', form = form, token=session['token'], confidence = "{:.2%}".format(round(session['confidence'],4)), hastrained = old_hastrained, picturedir = session['imagedir'], health_user = health_pic_user, blight_user = blight_pic_user, healthNum_user = len(health_pic_user), blightNum_user = len(blight_pic_user), health_test = health_pic, unhealth_test = blight_pic, healthyNum = len(health_pic), unhealthyNum = len(blight_pic), healthyPct = "{:.2%}".format(len(health_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), unhealthyPct = "{:.2%}".format(len(blight_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), h_prob = health_pic_prob, b_prob = blight_pic_prob)
+        return render_template('step5Final.html', form = form, token=session['token'], confidence = "{:.2%}".format(round(session['confidence'],4)), default_confidence = "{:.2%}".format(round(session['default_confidence'],4)), hastrained = old_hastrained, picturedir = session['imagedir'], health_user = health_pic_user, blight_user = blight_pic_user, healthNum_user = len(health_pic_user), blightNum_user = len(blight_pic_user), health_test = health_pic, unhealth_test = blight_pic, healthyNum = len(health_pic), unhealthyNum = len(blight_pic), healthyPct = "{:.2%}".format(len(health_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), unhealthyPct = "{:.2%}".format(len(blight_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), h_prob = health_pic_prob, b_prob = blight_pic_prob)
 
 @app.route("/", methods=['GET'])
 def redirect_to_index():
@@ -281,6 +271,8 @@ def load_prev_model():
     print(is_locked(session['tempdir'],token))
     if is_locked(session['tempdir'],token):
         return render_template('index.html',error_visibility="",error_text="Model already loaded. Please wait until available.")
+    elif token == "default_model":
+        return render_template('index.html',error_visibility="",error_text="Cannot load default model.")
     al_model = load_model(session['modeldir'],session['tempdir'],token)
     if al_model == None:
         return render_template('index.html',error_visibility="",error_text="Model not found. Perhaps a wrong token was entered?")

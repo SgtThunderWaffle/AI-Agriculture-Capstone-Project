@@ -21,6 +21,10 @@ def load_model(modeldir, tempdir, token):
         shutil.copy(modeldir+token+'/model.joblib', tempdir+token+'.joblib')
     return ml_model
     
+def load_default_model(modeldir):
+    ml_model = load(modeldir+'default_model/model.joblib')
+    return ml_model
+    
 def tempload_model(tempdir, token):
     ml_model = load(tempdir+token+'.joblib')
     return ml_model
@@ -331,5 +335,4 @@ class Active_ML_Model(ML_Model):
     
     def next_samples(self, sampling_method, n_samples=5):
         self.sample, self.test = sampling_method(self.ml_model, n_samples)
-        
 
