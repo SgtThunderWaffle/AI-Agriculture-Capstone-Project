@@ -205,8 +205,10 @@ class ML_Model:
                 y_pic_tail = y_pic_tail[5:]
             for y_idx, y in enumerate(y_actual):
                 if y == 'H':
+                    print(y_idx, len(y_pic_result))
                     health_pic.append(y_pic_result[y_idx])
                 elif y == 'B':
+                    print(y_idx, len(y_pic_result))
                     blight_pic.append(y_pic_result[y_idx])
         return health_pic, blight_pic
 
@@ -245,9 +247,11 @@ class ML_Model:
         blight_pic_prob = []
         for y_idx, y in enumerate(y_pred):
             if y == 'H':
+                print(y_idx, len(y_pic_result))
                 health_pic.append(test_pic[y_idx])
                 health_pic_prob.append(y_prob[y_idx])
             elif y == 'B':
+                print(y_idx, len(y_pic_result))
                 blight_pic.append(test_pic[y_idx])
                 blight_pic_prob.append(y_prob[y_idx])
         health_list = list(zip(health_pic,health_pic_prob))
