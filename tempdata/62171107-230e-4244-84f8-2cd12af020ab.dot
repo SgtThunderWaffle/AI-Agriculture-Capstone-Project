@@ -1,9 +1,0 @@
-digraph Tree {
-node [shape=box, fontname="helvetica"] ;
-edge [fontname="helvetica"] ;
-0 [label="Haralick 6 <= 0.193\ngini = 0.32\nsamples = 6\nvalue = [2, 8]"] ;
-1 [label="gini = 0.0\nsamples = 4\nvalue = [0, 8]"] ;
-0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
-2 [label="gini = 0.0\nsamples = 2\nvalue = [2, 0]"] ;
-0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
-}
