@@ -9,6 +9,7 @@ from app.forms import LabelForm
 from joblib import dump, load
 from flask_bootstrap import Bootstrap
 from sklearn.ensemble import RandomForestClassifier
+from app.web import getData
 import pandas as pd
 import os
 import numpy as np
@@ -16,6 +17,13 @@ import boto3
 from io import StringIO
 import json
 
+
+@pytest.fixture
+def client():
+    # Runs a dummy web application client
+    app.config['TESTING'] = True
+    with app.test_client() as client:
+        yield client
 
 @pytest.fixture
 def X_test():
@@ -56,10 +64,18 @@ def ml_model():
     return ml_model
 
 @pytest.fixture
-def client():
-    app.config['TESTING'] = True
-    with app.test_client() as client:
-        yield client
+def ml_modelpractical():
+    # Makes a dummy ML Model using existing csv and default model
+    ml_classifier = RandomForestClassifier() 
+    preprocess = DataPreprocessing(True) 
+    data = getData()
+    token = generate_token()
+    modeldir = 'Models/'
+    tempdir = 'tempdata/'
+
+    ml_model = ML_Model(ml_classifier, preprocess, data, token, modeldir, tempdir)
+
+    return ml_model
 
 @pytest.fixture
 def active_ml_model():
@@ -77,49 +93,4 @@ def active_ml_model():
 
     return Active_ML_Model(ml_classifier, preprocess, data, token, modeldir, tempdir, n_samples=10)
 
-# New fixture for data with missing values
-@pytest.fixture
-def sample_with_missing_values():
-    data = pd.DataFrame({
-        'feature1': [1, 2, 3, 4, 5],
-        'feature2': [6, 7, 8, 9, 10],
-        'label': [None, 'B', 'A', 'B', 'A']  # Introduce missing value
-    })
-    return data
-
-# New fixture for categorical data
-@pytest.fixture
-def sample_with_categorical():
-    data = pd.DataFrame({
-        'feature1': [1, 2, 3, 4, 5],
-        'feature2': [6, 7, 8, 9, 10],  # Categorical feature
-        'label': ['A', 'B', 'A', 'B', 'A']
-    })
-    return data
-
-# New fixture for imbalanced data
-@pytest.fixture
-def imbalanced_sample():
-    data = pd.DataFrame({
-        'feature1': [1, 2, 3, 4, 5, 6, 7, 8],
-        'feature2': [6, 7, 8, 9, 10, 11, 12, 13],
-        'label': ['A', 'B', 'A', 'B', 'A', 'B', 'A', 'A']  # Imbalanced labels
-    })
-    return data
-
-# New fixture for Active_ML_Model with a different number of initial samples
-@pytest.fixture
-def active_ml_model_different_samples():
-    ml_classifier = RandomForestClassifier()
-    preprocess = DataPreprocessing(True)
-    token = generate_token()
-    modeldir = 'Models/'
-    tempdir = 'tempdata/'
-    data = pd.DataFrame({
-        'Feature1': [1, 2, 3],
-        'Feature2': [4, 5, 6],
-        'Label': ['H', 'B', 'H']
-    })
-
-    return Active_ML_Model(ml_classifier, preprocess, data, token, modeldir, tempdir, n_samples=20)
 
