@@ -1,0 +1,3 @@
+Run in Terminal To Test all files: 
+
+python -m pytest 

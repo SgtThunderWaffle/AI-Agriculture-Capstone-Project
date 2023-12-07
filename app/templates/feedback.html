@@ -27,7 +27,7 @@ FEEDBACK HTML
 					<br><br>
 					{% else %}
 					<img class="img-fluid img-thumbnail"
-						src="/static/images/{{healthy_list[i]}}"
+						src="{{picturedir}}{{healthy_list[i]}}"
 						alt="">
 					<h6 class="font-weight-normal">Confidence: {{healthy_conf_list[i]}}
 					{% endif %}
@@ -56,7 +56,7 @@ FEEDBACK HTML
 					<br><br>
 					{% else %}
 					<img class="img-fluid img-thumbnail"
-						src="/static/images/{{unhealthy_list[i]}}"
+						src="{{picturedir}}{{unhealthy_list[i]}}"
 						alt="">
 					<h6 class="font-weight-normal">Confidence: {{unhealthy_conf_list[i]}}
 					{% endif %}
