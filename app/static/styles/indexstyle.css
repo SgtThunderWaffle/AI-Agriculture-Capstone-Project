@@ -94,6 +94,18 @@ body {
     cursor: pointer;
 }
 
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("Output_o2BAmu.gif");
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
 @media (max-width: 768px) {
     .title {
         display: block;
