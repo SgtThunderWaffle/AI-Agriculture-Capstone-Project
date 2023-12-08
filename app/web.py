@@ -266,20 +266,23 @@ def home():
             print("model not present; skipping")
         session.clear()
     
-    return render_template('index.html',error_visibility="hidden",error_text="")
+    return render_template('index.html',error_visibility="hidden",error_text="",freddy_visibility="hidden")
     
 @app.route("/index.html", methods=['POST'])
 def load_prev_model():
     load_paths()
     token = request.form['token-enter']
-    print(is_locked(session['tempdir'],token))
+    #print(is_locked(session['tempdir'],token))
     if is_locked(session['tempdir'],token):
-        return render_template('index.html',error_visibility="",error_text="Model already loaded. Please wait until available.")
+        return render_template('index.html',error_visibility="",error_text="Model already loaded. Please wait until available.",freddy_visibility="hidden")
     elif token == "default_model":
-        return render_template('index.html',error_visibility="",error_text="Cannot load default model.")
+        return render_template('index.html',error_visibility="",error_text="Cannot load default model.",freddy_visibility="hidden")
+    elif token == "freddy":
+        print("release the freddy")
+        return render_template('index.html',error_visibility="hidden",error_text="",freddy_visibility="")
     al_model = load_model(session['modeldir'],session['tempdir'],token)
     if al_model == None:
-        return render_template('index.html',error_visibility="",error_text="Model not found. Perhaps a wrong token was entered?")
+        return render_template('index.html',error_visibility="",error_text="Model not found. Perhaps a wrong token was entered?",freddy_visibility="hidden")
     else:
         prepare_loadedModel(al_model)
         form = LabelForm()
