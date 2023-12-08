@@ -23,6 +23,8 @@ def client():
     app.config['TESTING'] = True
     with app.test_client() as client:
         yield client
+
+        
 @pytest.fixture
 def X_test():
     # Create a sample DataFrame for X_test with 2 features
