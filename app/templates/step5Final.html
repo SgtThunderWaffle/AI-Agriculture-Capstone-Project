@@ -63,7 +63,7 @@
 				{%for i in health_user%}
 				<div class="col-lg-3 col-md-4 col-6 d-block mb-4 h-100">
 					<img class="img-fluid img-rounded"
-						src="{{picturedir}}{{i}}"
+						src="{{url_for('tree_img', filename=i, istree=False)}}"
 						alt="">
 				</div>
 				{%endfor%}
@@ -87,7 +87,7 @@
 				{%for i in blight_user%}
 				<div class="col-lg-3 col-md-4 col-6 d-block mb-4 h-100">
 					<img class="img-fluid img-rounded"
-						src="{{picturedir}}{{i}}"
+						src="{{url_for('tree_img', filename=i, istree=False)}}"
 						alt="">
 				</div>
 				{%endfor%}
@@ -113,8 +113,9 @@
 				{%for i in range(0, healthyNum)%}
 				<div id="healthy_checkboxes" class="col-lg-3 col-md-4 col-6 d-block mb-4 h-100">
 					<img class="img-fluid img-rounded"
-						src="{{picturedir}}{{health_test[i]}}"
-						alt="">
+                        src="{{url_for('tree_img', filename=health_test[i], istree=False)}}"
+						<!--src="{{picturedir}}{{health_test[i]}}"
+						alt="">-->
 					<h6 class="font-weight-normal">Individual Confidence: {{"{:.0%}".format(h_prob[i])}}
 					<h6 class="font-weight-normal">Disagree with the prediction?
 	                <input type="checkbox" name="healthy" value="{{health_test[i]}}" conf-value="{{h_prob[i]}}"><br>
@@ -142,8 +143,9 @@
 				{%for i in range(0, unhealthyNum)%}
 				<div id="unhealthy_checkboxes" class="col-lg-3 col-md-4 col-6 d-block mb-4 h-100">
 					<img class="img-fluid img-rounded"
-						src="{{picturedir}}{{unhealth_test[i]}}"
-						alt="">
+                        src="{{url_for('tree_img', filename=unhealth_test[i], istree=False)}}"
+						<!--src="{{picturedir}}{{unhealth_test[i]}}"
+						alt="">-->
 					<h6 class="font-weight-normal">Individual Confidence: {{"{:.0%}".format(b_prob[i])}}
 					<h6 class="font-weight-normal">Disagree with the prediction?
 	                <input type="checkbox" name="unhealthy" value="{{unhealth_test[i]}}" conf-value="{{b_prob[i]}}"><br>
@@ -163,7 +165,7 @@
 			    <p><h5 class="font-weight-normal">The Number of Disagreed Predictions for Healthy: <span id="healthyselected">0</span></p>
 			    <p><h5 class="font-weight-normal">The Number of Disagreed Predictions for Unhealthy: <span id="unhealthyselected">0</span></p>
 			    <br>
-			    <!--<button id="img" class="mb-2 mt-4 active_button">Show Selected Images</button>-->
+			    <button id="img" class="mb-2 mt-4 active_button">Show Selected Images</button>
 			</div>
 		</div>
 	</div>

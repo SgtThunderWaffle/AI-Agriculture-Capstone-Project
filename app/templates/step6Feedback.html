@@ -38,8 +38,9 @@
 					<br><br>
 					{% else %}
 					<img class="img-fluid img-thumbnail"
-						src="{{picturedir}}{{healthy_list[i]}}"
-						alt="">
+                        src="{{url_for('tree_img', filename=healthy_list[i], istree=False)}}"
+						<!--src="{{picturedir}}{{healthy_list[i]}}"
+						alt="">-->
 					<h6 class="font-weight-normal">Confidence: {{healthy_conf_list[i]}}
 					{% endif %}
 				</div>
@@ -67,8 +68,9 @@
 					<br><br>
 					{% else %}
 					<img class="img-fluid img-thumbnail"
-						src="{{picturedir}}{{unhealthy_list[i]}}"
-						alt="">
+                        src="{{url_for('tree_img', filename=unhealthy_list[i], istree=False)}}"
+						<!--src="{{picturedir}}{{unhealthy_list[i]}}"
+						alt="">-->
 					<h6 class="font-weight-normal">Confidence: {{unhealthy_conf_list[i]}}
 					{% endif %}
 				</div>
