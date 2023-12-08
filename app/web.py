@@ -102,7 +102,7 @@ def prepare_loadedModel(al_model):
     session['sample'] = al_model.train
     session['labels'] = al_model.labels
     session['hastrained'] = al_model.hastrained
-    session['confidence_break'] = .85
+    session['confidence_break'] = .70
     session['model'] = True
     
 def renderLabel(form):
@@ -229,6 +229,10 @@ def prepairResults(form,train):
 
     session['confidence'] = np.mean(ml_model.K_fold())
     session['labels'] = []
+
+    print("Session elements:")
+    for element in session:
+        print(element+": "+str(session[element]))
 
     if session['confidence'] < session['confidence_break']:
         health_pic, blight_pic = ml_model.infoForProgress()
@@ -395,10 +399,8 @@ def clear_model():
 @app.route("/<istree>/<filename>")
 def tree_img(filename, istree):
     if istree == "True":
-        print("\n\nis tree\n")
         return send_from_directory(str(os.path.abspath(session['tempdir'])), filename, as_attachment=True)
     else:
-        print("\n\nis not tree\n")
         if "static" in session['imagedir']:
             return send_from_directory(session['imagedir'], filename, as_attachment=True)
         else:
