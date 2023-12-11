@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block content %}
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/steps.css') }}">
+</head>
+<body>
+    <div class="title">
+         STEP 5: Testing the Model
+    </div>
+
+    <div class="description">
+    </div>
+    
+     <div class="content-box">
+	<div class="container">
+		<div class="row border-bottom">
+			<h1 class="font-weight-light pb-3 mb-2 mt-4">Intermediate
+				Results <a href="javascript:void(0)" data-toggle="popover" data-trigger="focus" data-content="The intermediate page shows the images you've labeled with current Machine Learning confidence level. It will be automatically tranfered to the final results when the confidence level is over the preset threshold.">
+                            <span class="fa fa-info-circle" style="font-size:24px"></span></h1></a>
+		</div>
+		<div class="text-right">
+            <span data-toggle="tooltip" data-placement="left" style="width:300px" title="This is your current model ID. It can be entered at the home page to resume training after being saved.">{{token}}</span>
+            <a id="save-button"><button class="mb-2 mt-4 active_button" data-toggle="tooltip" data-placement="left" title="Save model by token and return to homepage">Save</button></a>
+            <a href="index.html"><button class="mb-2 mt-4 active_button" data-toggle="tooltip" data-placement="left" title="Go back to the home page and restart training">Home</button></a> 
+			<a href="step4Labeling.html"><button class="mb-2 mt-4 active_button" data-toggle="tooltip" data-placement="right" title="You can train AI more by labeling more images, which may increase the Machine Learning confidence level">Keep
+					Training</button></a>
+            <br><br>
+			<h5 class="font-weight-normal">Confidence: {{confidence}}
+			<a href="javascript:void(0)" data-toggle="tooltip" data-trigger="focus" title="The value of confidence represents how well the AI can predict the currently labeled images.">
+                            <span class="fa fa-info-circle" style="font-size:24px"></span></a></h5>
+            <hr>
+            <h5 class="font-weight-normal">Pretrained Confidence: {{default_confidence}}
+                <a href="javascript:void(0)" data-toggle="tooltip" data-trigger="focus" title="This is the confidence value returned by a pretrained model for reference and comparison.">
+                    <span class="fa fa-info-circle" style="font-size:24px">
+                    </span>
+                </a>
+            </h5>
+
+		</div>
+			<div class="container">
+        <h5 class="font-weight-light text-center text-lg-left mt-4 mb-0">Random Estimator Image:</h5>
+        <div class="row text-center text-lg-left">
+            <div class="col-lg-6 col-md-8 col-12 d-block mb-4 h-100">
+                <img class="img-fluid img-thumbnail"
+                    src="{{ url_for('tree_img', filename=token+'.png', istree=True) }}"
+                    alt="Random Estimator Image">
+                <hr><hr>
+                <div>
+                    <span data-toggle="tooltip" data-placement="left" style="width:300px" title="The top of each square contains the name of the image feature being measured. It will either be measured as greater than, less than, or equal to a cutoff point, which determines what branch of the tree it goes down.">Features</span>
+                    <br>
+                    <span data-toggle="tooltip" data-placement="left" style="width:300px" title="In decision trees, the gini index shows the chance of a picture going through the tree being sent down the wrong branch. The maximum is 0.5, meaning that going on a wrong branch has a 50/50 chance.">GINI Index</span>
+                    <br>
+                    <span data-toggle="tooltip" data-placement="left" style="width:300px" title="The 'samples' value shows the number of images that made it to that branch of the tree.">Sample Count</span>
+                    <br>
+                    <span data-toggle="tooltip" data-placement="left" style="width:300px" title="'Values' indicates the range of values compared for whatever feature the branch measures.">Value Range</span>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="container">
+
+			<h5 class="font-weight-light text-center text-lg-left mt-4 mb-0">Healthy(User):
+				{{healthNum_user}} <a href="javascript:void(0)" data-toggle="popover" data-trigger="focus" data-content="Click on image to view full size"> <span class="fa fa-search"></span></a>
+            </h5>
+
+			<hr class="mt-2 mb-5">
+
+			<div class="row text-center text-lg-left">
+				{%for i in health_user%}
+				<div class="col-lg-3 col-md-4 col-6 d-block mb-4 h-100">
+					<img class="img-fluid img-thumbnail"
+						src="{{url_for('tree_img', filename=i, istree=False)}}"
+						alt="">
+				</div>
+				{%endfor%}
+				<div id="myModal" class="modal">
+
+					<span class="close">&times;</span>
+
+					<img class="modal-content" id="imgset">
+				</div>
+			</div>
+		</div>
+		<div class="container">
+
+			<h5 class="font-weight-light text-center text-lg-left mt-4 mb-0">Unhealthy(User):
+				{{blightNum_user}} <a href="javascript:void(0)" data-toggle="popover" data-trigger="focus" data-content="Click on image to view full size"> <span class="fa fa-search"></span></a>
+            </h5>
+
+			<hr class="mt-2 mb-5">
+
+			<div class="row text-center text-lg-left">
+				{%for i in blight_user%}
+				<div class="col-lg-3 col-md-4 col-6 d-block mb-4 h-100">
+					<img class="img-fluid img-thumbnail"
+						src="{{url_for('tree_img', filename=i, istree=False)}}"
+						alt="">
+				</div>
+				{%endfor%}
+				<div id="myModal" class="modal">
+
+					<span class="close">&times;</span>
+
+					<img class="modal-content" id="imgset">
+				</div>
+			</div>
+		</div>
+	</div>
+
+    </div>
+	
+   <button class="next-button">
+    <a href="step6.html" style="text-decoration: none; color: #FFFFFF;">NEXT</a>
+    </button>
+    
+    <button class="back-button">
+    <a href="step4.html" style="text-decoration: none; color: #FFFFFF;">BACK</a>
+    </button>
+    
+    <div class="dots-container">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="redot"></div>
+        <div class="dot"></div>
+    </div>
+    
+</body>
+<script>
+	var modal = document.getElementById('myModal');
+
+	var images = document.querySelectorAll(".img-thumbnail");
+	var modalImg = document.getElementById("imgset");
+	for(let i = 0; i < images.length; i++){
+	  images[i].onclick = function(){
+	    modal.style.display = "block";
+	    modalImg.src = this.src;
+	  }
+	}
+
+	var span = document.getElementsByClassName("close")[0];
+
+	span.onclick = function(){
+	  modal.style.display = "none";
+	}
+	$(document).ready(function(){
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+    $(document).ready(function(){
+        $('[data-toggle="popover"]').popover();
+    });
+	</script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('a#save-button').on('click', function(e) {
+            e.preventDefault();
+            //$.getJSON('save-model', function(data) {});
+            location.href = "save-model";
+            return false;
+        });
+    });
+</script>
+</html>
+{% endblock %}

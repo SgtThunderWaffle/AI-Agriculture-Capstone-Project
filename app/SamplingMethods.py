@@ -25,6 +25,13 @@ def lowestPercentage(ml_model, X_test, n):
     X_test: pandas DataFrame
         The new testing set with the samples removed.
     """
+    #Test case to ensure X_test is initiated properly
+    if X_test.empty:
+        raise ValueError("X_test is empty")
+
+    if n > len(X_test):
+        raise ValueError(f"n exceeds the number of samples in X_test: {n} > {len(X_test)}")
+
     from sklearn.utils import shuffle
     predictions, probabilities = ml_model.GetUnknownPredictions(X_test)
 
