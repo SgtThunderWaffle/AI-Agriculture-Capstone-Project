@@ -1,0 +1,25 @@
+digraph Tree {
+node [shape=box, fontname="helvetica"] ;
+edge [fontname="helvetica"] ;
+0 [label="HU Moment 4 <= 0.148\ngini = 0.493\nsamples = 32\nvalue = [28, 22]"] ;
+1 [label="HU Moment 3 <= -0.612\ngini = 0.478\nsamples = 22\nvalue = [13, 20]"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label="Blighted RGB Ratio <= 1.33\ngini = 0.391\nsamples = 10\nvalue = [11, 4]"] ;
+1 -> 2 ;
+3 [label="(...)"] ;
+2 -> 3 ;
+6 [label="(...)"] ;
+2 -> 6 ;
+7 [label="HU Moment 1 <= -0.703\ngini = 0.198\nsamples = 12\nvalue = [2, 16]"] ;
+1 -> 7 ;
+8 [label="(...)"] ;
+7 -> 8 ;
+9 [label="(...)"] ;
+7 -> 9 ;
+10 [label="HU Moment 7 <= -1.693\ngini = 0.208\nsamples = 10\nvalue = [15, 2]"] ;
+0 -> 10 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+11 [label="gini = 0.0\nsamples = 2\nvalue = [0, 2]"] ;
+10 -> 11 ;
+12 [label="gini = 0.0\nsamples = 8\nvalue = [15, 0]"] ;
+10 -> 12 ;
+}

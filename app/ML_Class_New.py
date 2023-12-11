@@ -12,7 +12,17 @@ from sklearn.tree import export_graphviz
 from sklearn.utils import shuffle
 import pandas as pd
 
+
 def load_model(modeldir, tempdir, token):
+    '''
+    Loads the model, png, and .dot file based on the specified directory by modeldir, tempdir, and token
+
+    parameters
+    ----------
+    modeldir - directory of the model file
+    tempdir - directory of where models are temporarilty saved
+    token - the file name related to where a unique model is saved
+    '''
     ml_model = None
     if os.path.exists(modeldir+token+'/model.joblib'):
         ml_model = load(modeldir+token+'/model.joblib')
@@ -22,17 +32,46 @@ def load_model(modeldir, tempdir, token):
     return ml_model
     
 def load_default_model(modeldir):
+    '''
+    Loads the default model at the location 'default_model/model.joblib'
+
+    parameters
+    ----------
+    modeldir - directory of the default model file
+    '''
     ml_model = load(modeldir+'default_model/model.joblib')
     return ml_model
     
 def tempload_model(tempdir, token):
+    '''
+    temporarily Loads the  model at the location specified by the tempdir, and token
+
+    parameters
+    ----------
+    tempdir: directory where the temporary models are kept
+    token: the specific .joblib file that goes by the token name
+    '''
     ml_model = load(tempdir+token+'.joblib')
     return ml_model
     
 def generate_token():
+    '''
+    generates a random token
+
+    '''
     return str(uuid4())
     
 def is_locked(tempdir, token):
+    '''
+    determines a lock state depending on if the model exist at the given tempdir having the token name specified, if such model exist
+    then locked is returned true, else its returned as false.
+
+    parameters
+    ----------
+    tempdir: directory where the temporary models are kept
+    teokn: the specific .joblib file that goes by the token name
+
+    '''
     locked = False
     if os.path.exists(tempdir+token+'.joblib'):
         locked = True
