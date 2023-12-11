@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/steps.css') }}">
+</head>
+<body>
+    <div class="title">
+         STEP 4 Training of AI/Creating the Model
+    </div>
+
+    <div class="description">
+    </div>
+    
+     <div class="content-box">
+	 This section is where most coding and technical knowledge is applied, for our purposes information will be displayed in general terms
+	<ul>
+		<li>Training is typically done in batches of images, rather than the whole set at once, which are called epochs. Epochs are not a defined unit of time, but are a good measurement of how long training may take.</li>
+		<li>Training takes processed data as the code that makes the determination of what category it thinks the input belongs in can’t directly see an image or watch a video or hear music and looks at datapoints to identify features.</li>
+		<li>The final score of what category the data input fits into is decided by weighting many neurons, this score is called a confidence level and typically given in a percentage.</li>
+	</ul>
+    </div>
+	
+
+    <button class="start-button">
+        <a href="step4Labeling.html" style="text-decoration: none; color: #FFFFFF;">START LABELING</a>
+    </button>
+   <button class="next-button">
+    <a href="step5.html" style="text-decoration: none; color: #FFFFFF;">NEXT</a>
+    </button>
+    
+    <button class="back-button">
+    <a href="step3.html" style="text-decoration: none; color: #FFFFFF;">BACK</a>
+    </button>
+    
+    <div class="dots-container">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="redot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+    
+</body>
+</html>
+{% endblock %}

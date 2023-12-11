@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<html>
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/steps.css') }}">
+<body>
+    <div class="title">
+         STEP 4 Training of AI/Creating the Model
+    </div>
+
+    <div class="description">
+    </div>
+    
+    <div class="content-box">
+		<div class="row">
+			<div class="col-lg-10 col-xl-9 mx-auto">
+				<div class="card flex-row my-5 shadow rounded-lg border-0">
+					<div class="card-img-left d-none d-md-flex rounded-lg border-0">
+						<img
+							src="{{ url_for('tree_img', filename=picture, istree=False) }}"
+							style="width: 500px; height: 400px;">
+					</div>
+					<div class="card-body">
+					    <br>
+					    <p><a href="javascript:void(0)" data-toggle="popover" data-trigger="focus" title="Useful Tips" data-content="The image can be identified as &quot;healthy&quot; if it satisfies the following conditions: green, no dark spots on the leaves, and not wilted. Otherwise, it's unhealthy. <br /><br />The training labels you provide will teach AI to recognize patterns and features on its own" data-html="true">
+                            <span class="fas fa-bullhorn" style="font-size:24px"></span>
+                        </a></p>
+                        <br>
+						<p>&#10146; Use the buttons to label an image as "Healthy" or
+							"Unhealthy"</p>
+						<form class="form form-horizontal" action="" method="post">
+							<p>{{form.choice()}}</p>
+							<p>{{form.submit()}}</p>
+						</form><br>
+					</div>
+				</div>
+			</div>
+		</div>
+    </div>
+
+   <button class="next-button">
+    <a href="step5.html" style="text-decoration: none; color: #FFFFFF;">NEXT</a>
+    </button>
+    
+    <button class="back-button">
+    <a href="step4.html" style="text-decoration: none; color: #FFFFFF;">BACK</a>
+    </button>
+    
+    <div class="dots-container">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="redot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+    
+</body>
+<script>    
+    $(document).ready(function(){
+    $('[data-toggle="popover"]').popover();
+    });
+</script>
+</html>
+{% endblock %}

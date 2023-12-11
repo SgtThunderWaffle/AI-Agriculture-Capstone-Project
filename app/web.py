@@ -2,13 +2,14 @@
 """@package web
 This method is responsible for the inner workings of the different web pages in this application.
 """
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask import render_template, flash, redirect, url_for, session, request, jsonify
 from app import app
 from app.DataPreprocessing import DataPreprocessing
-from app.ML_Class import Active_ML_Model, AL_Encoder, ML_Model
+from app.ML_Class_New import ML_Model, Active_ML_Model, load_model, load_default_model, tempload_model, generate_token, is_locked
 from app.SamplingMethods import lowestPercentage
 from app.forms import LabelForm
+from joblib import dump, load
 from flask_bootstrap import Bootstrap
 from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
@@ -16,9 +17,19 @@ import os
 import numpy as np
 import boto3
 from io import StringIO
+import json
 
 bootstrap = Bootstrap(app)
+al_model = None
+default_ml_model = None
 
+def load_paths():
+    with open('app/path_config.json','r') as f:
+        paths = json.load(f)
+        session['modeldir'] = paths['modelPath']
+        session['tempdir'] = paths['tempPath']
+        session['imagedir'] = paths['imagesPath']
+        
 def getData():
     """
     Gets and returns the csvOut.csv as a DataFrame.
@@ -28,16 +39,28 @@ def getData():
     data : Pandas DataFrame
         The data that contains the features for each image.
     """
-    s3 = boto3.client('s3')
-    path = 's3://cornimagesbucket/csvOut.csv'
+    #s3 = boto3.client('s3')
+    #path = 's3://cornimagesbucket/csvOut.csv'
+
+    #print("getData()ISCALLED#############################################")
+
+    path = 'app/csvOut.csv'
 
     data = pd.read_csv(path, index_col = 0, header = None)
-    data.columns = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16']
+    data.columns = ['1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25','26','27','28','29','30','31','32','33','34','35']
 
-    data_mod = data.astype({'8': 'int32','9': 'int32','10': 'int32','12': 'int32','14': 'int32'})
-    return data_mod.iloc[:, :-1]
+    #print("Original DataFrame:")
+    #print(data)
 
-def createMLModel(data):
+    #data_mod = data.astype({'8': 'int32','9': 'int32','10': 'int32','12': 'int32','14': 'int32'})
+    data_mod = data
+
+    #print("\nDataFrame after type casting:")
+    #print(data_mod)
+
+    return data_mod.iloc[1:, :]
+
+def createMLModel(data,doTrain):
     """
     Prepares the training set and creates a machine learning model using the training set.
 
@@ -53,12 +76,35 @@ def createMLModel(data):
     train_img_names : String
         The names of the images.
     """
+    #print("createMLmodel(data)ISCALLED#############################################")
     train_img_names, train_img_label = list(zip(*session['train']))
     train_set = data.loc[train_img_names, :]
-    train_set['y_value'] = train_img_label
-    ml_model = ML_Model(train_set, RandomForestClassifier(), DataPreprocessing(True))
-    return ml_model, train_img_names
-
+    train_set = train_set.iloc[:,:-1].assign(label=train_img_label)
+    default_modelPath = session['modeldir']
+    default_tokenPath = session['token']
+    default_tempPath = session['tempdir']
+    al_model = tempload_model(default_tempPath,default_tokenPath)
+    if doTrain:
+        al_model.train_model_add(train_set)
+        for name in train_img_names:
+            al_model.train_files.append(name)
+    
+    al_model.tempsave_model()
+    al_model.visualize_model(5)
+    return al_model, train_img_names
+    
+def prepare_loadedModel(al_model):
+    session['train'] = al_model.train
+    session['token'] = al_model.token
+    session['test'] = list(al_model.test.index.values)
+    session['sample_idx'] = list(al_model.sample.index.values)
+    session['queue'] = list(al_model.sample.index.values)
+    session['sample'] = al_model.train
+    session['labels'] = al_model.labels
+    session['hastrained'] = al_model.hastrained
+    session['confidence_break'] = .85
+    session['model'] = True
+    
 def renderLabel(form):
     """
     prepairs a render_template to show the label.html web page.
@@ -73,12 +119,14 @@ def renderLabel(form):
     render_template : flask function
         renders the label.html webpage.
     """
+    #print("renderLabel(form)ISCALLED#############################################")
+    load_paths()
     queue = session['queue']
     img = queue.pop()
     session['queue'] = queue
-    return render_template(url_for('label'), form = form, picture = img, confidence = session['confidence'])
+    return render_template(url_for('step4Labeling'), form = form, picturedir = session['imagedir'], picture = img, confidence = session['confidence'])
 
-def initializeAL(form, confidence_break = .7):
+def initializeAL(form, confidence_break = .85):
     """
     Initializes the active learning model and sets up the webpage with everything needed to run the application.
 
@@ -94,11 +142,17 @@ def initializeAL(form, confidence_break = .7):
     render_template : flask function
         renders the label.html webpage.
     """
+    #print("intializeAL(form, confidence_break =.7)ISCALLED#############################################")
     preprocess = DataPreprocessing(True)
     ml_classifier = RandomForestClassifier()
+    default_modelPath = 'Models/'
+    default_tokenPath = generate_token()
+    default_tempPath = 'tempdata/'
     data = getData()
-    al_model = Active_ML_Model(data, ml_classifier, preprocess)
-
+    al_model = Active_ML_Model(ml_classifier, preprocess,data,default_tokenPath,default_modelPath,default_tempPath)
+    al_model.tempsave_model()
+    #print('DEBUGGING')
+    #print(al_model.__dict__) 
     session['confidence'] = 0
     session['confidence_break'] = confidence_break
     session['labels'] = []
@@ -106,8 +160,10 @@ def initializeAL(form, confidence_break = .7):
     session['test'] = list(al_model.test.index.values)
     session['train'] = al_model.train
     session['model'] = True
+    session['token'] = default_tokenPath
     session['queue'] = list(al_model.sample.index.values)
-
+    session['hastrained'] = al_model.hastrained
+    
     return renderLabel(form)
 
 def getNextSetOfImages(form, sampling_method):
@@ -126,16 +182,17 @@ def getNextSetOfImages(form, sampling_method):
     render_template : flask function
         renders the label.html webpage.
     """
+    #print("getNextSetOfImages(form, sampling_method)ISCALLED#############################################")
     data = getData()
-    ml_model, train_img_names = createMLModel(data)
+    ml_model, train_img_names = createMLModel(data,False)
     test_set = data[data.index.isin(train_img_names) == False]
 
-    session['sample_idx'], session['test'] = sampling_method(ml_model, test_set, 5)
+    session['sample_idx'], session['test'] = sampling_method(ml_model, test_set.iloc[:,:-1], 5)
     session['queue'] = session['sample_idx'].copy()
 
     return renderLabel(form)
 
-def prepairResults(form):
+def prepairResults(form,train):
     """
     Creates the new machine learning model and gets the confidence of the machine learning model.
 
@@ -149,77 +206,238 @@ def prepairResults(form):
     render_template : flask function
         renders the appropriate webpage based on new confidence score.
     """
+    #print("prepairResults(form)ISCALLED#############################################")
     session['labels'].append(form.choice.data)
     session['sample'] = tuple(zip(session['sample_idx'], session['labels']))
 
-    if session['train'] != None:
-        session['train'] = session['train'] + session['sample']
-    else:
-        session['train'] = session['sample']
+    #if session['train'] != None:
+        #session['train'] = session['train'] + session['sample']
+    #else:
+    old_hastrained = session['hastrained']
+    session['hastrained'] = True
+    
+    session['train'] = session['sample']
 
     data = getData()
-    ml_model, train_img_names = createMLModel(data)
+    ml_model, train_img_names = createMLModel(data,train)
+    ml_model.labels = session['labels']
+    ml_model.hastrained = True
+    
+    if 'default_confidence' not in session:
+        default_ml_model = load_default_model(session['modeldir'])
+        session['default_confidence'] = np.mean(default_ml_model.K_fold())
 
     session['confidence'] = np.mean(ml_model.K_fold())
     session['labels'] = []
 
+    print("Session elements:")
+    for element in session:
+        print(element+": "+str(session[element]))
+
     if session['confidence'] < session['confidence_break']:
-        health_pic, blight_pic = ml_model.infoForProgress(train_img_names)
-        return render_template('intermediate.html', form = form, confidence = "{:.2%}".format(round(session['confidence'],4)), health_user = health_pic, blight_user = blight_pic, healthNum_user = len(health_pic), blightNum_user = len(blight_pic))
+        health_pic, blight_pic = ml_model.infoForProgress()
+        return render_template('step5Intermediate.html', form = form, token=session['token'], confidence = "{:.2%}".format(round(session['confidence'],4)), default_confidence = "{:.2%}".format(round(session['default_confidence'],4)), hastrained = old_hastrained, picturedir = session['imagedir'], health_user = health_pic, blight_user = blight_pic, healthNum_user = len(health_pic), blightNum_user = len(blight_pic))
     else:
         test_set = data.loc[session['test'], :]
-        health_pic_user, blight_pic_user, health_pic, blight_pic, health_pic_prob, blight_pic_prob = ml_model.infoForResults(train_img_names, test_set)
-        return render_template('final.html', form = form, confidence = "{:.2%}".format(round(session['confidence'],4)), health_user = health_pic_user, blight_user = blight_pic_user, healthNum_user = len(health_pic_user), blightNum_user = len(blight_pic_user), health_test = health_pic, unhealth_test = blight_pic, healthyNum = len(health_pic), unhealthyNum = len(blight_pic), healthyPct = "{:.2%}".format(len(health_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), unhealthyPct = "{:.2%}".format(len(blight_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), h_prob = health_pic_prob, b_prob = blight_pic_prob)
+        ml_model.is_finalized = True
+        health_pic_user, blight_pic_user, health_pic, blight_pic, health_pic_prob, blight_pic_prob = ml_model.infoForResults(test_set)
+        return render_template('step5Final.html', form = form, token=session['token'], confidence = "{:.2%}".format(round(session['confidence'],4)), default_confidence = "{:.2%}".format(round(session['default_confidence'],4)), hastrained = old_hastrained, picturedir = session['imagedir'], health_user = health_pic_user, blight_user = blight_pic_user, healthNum_user = len(health_pic_user), blightNum_user = len(blight_pic_user), health_test = health_pic, unhealth_test = blight_pic, healthyNum = len(health_pic), unhealthyNum = len(blight_pic), healthyPct = "{:.2%}".format(len(health_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), unhealthyPct = "{:.2%}".format(len(blight_pic)/(200-(len(health_pic_user)+len(blight_pic_user)))), h_prob = health_pic_prob, b_prob = blight_pic_prob)
 
 @app.route("/", methods=['GET'])
+def redirect_to_index():
+    return redirect("index.html")
+
 @app.route("/index.html",methods=['GET'])
 def home():
+    #print("RUNNING INDEX.HTML APP ROUTE")
     """
     Operates the root (/) and index(index.html) web pages.
     """
-    session.pop('model', None)
-    return render_template('index.html')
+    #session.pop('model', None)
+    load_paths()
+    #print("\n\n\n\n\n"+session['modeldir']+"\n\n\n\n")
+    if 'model' in session:
+        default_tempPath = session['tempdir']
+        default_tokenPath = session['token']
+        try:
+            al_model = tempload_model(default_tempPath,default_tokenPath)
+            al_model.clear_tempdata()
+        except:
+            print("model not present; skipping")
+        session.clear()
+    
+    return render_template('index.html',error_visibility="hidden",error_text="",freddy_visibility="hidden")
+    
+@app.route("/index.html", methods=['POST'])
+def load_prev_model():
+    ''' 
+    Loads the previous model based on the token enter on the given form. 
 
-@app.route("/label.html",methods=['GET', 'POST'])
-def label():
+    If the model exist then it will be loaded, otherwise it will be checked if its already model through the is_locked method 
+    or if the model is not found it will return a not found message
+
+    '''
+    load_paths()
+    token = request.form['token-enter']
+    #print(is_locked(session['tempdir'],token))
+    if is_locked(session['tempdir'],token):
+        return render_template('index.html',error_visibility="",error_text="Model already loaded. Please wait until available.",freddy_visibility="hidden")
+    elif token == "default_model":
+        return render_template('index.html',error_visibility="",error_text="Cannot load default model.",freddy_visibility="hidden")
+    elif token == "freddy":
+        print("release the freddy")
+        return render_template('index.html',error_visibility="hidden",error_text="",freddy_visibility="")
+    al_model = load_model(session['modeldir'],session['tempdir'],token)
+    if al_model == None:
+        return render_template('index.html',error_visibility="",error_text="Model not found. Perhaps a wrong token was entered?",freddy_visibility="hidden")
+    else:
+        prepare_loadedModel(al_model)
+        form = LabelForm()
+        return(prepairResults(form,False))
+
+#@app.route('/load-model', methods=['POST'])
+
+@app.route('/aiExplained.html')
+def ai_explained():
+    #print("RUNNING AIEXPLAINED APP ROUTE")
+    return render_template('aiExplained.html')
+
+@app.route("/applicationExplained.html")
+def applicationExplained():
     """
-    Operates the label(label.html) web page.
+    Operates the applicationExplained.html web page.
     """
+    return render_template('applicationExplained.html')
+
+@app.route("/step1.html")
+def step1():
+    """
+    Operates the step1.html web page.
+    """
+    return render_template('step1.html')
+
+@app.route("/step2.html")
+def step2():
+    """
+    Operates the step2.html web page.
+    """
+    return render_template('step2.html')
+
+@app.route("/step3.html")
+def step3():
+    """
+    Operates the step3.html web page.
+    """
+    return render_template('step3.html')
+
+@app.route("/step4.html")
+def step4():
+    """
+    Operates the step4.html web page.
+    """
+    return render_template('step4.html')
+
+@app.route("/step5.html")
+def step5():
+    """
+    Operates the step5.html web page.
+    """
+    return render_template('step5.html')
+
+@app.route("/step6.html")
+def step6():
+    """
+    Operates the step6.html web page.
+    """
+    return render_template('step6.html')
+
+@app.route("/step4Labeling.html" ,methods=['GET', 'POST'])
+def step4Labeling():
+    """
+    Operates the step4Labeling.html web page.
+    Where Labeling of Leaf as Healthy/Unhealthy Happens.
+    """
+    print("RUNNING STEP4LABELING.HTML APP ROUTE")
     form = LabelForm()
     if 'model' not in session:#Start
-        return initializeAL(form, .7)
+        #print("initialize al")
+        return initializeAL(form, .85)
 
     elif session['queue'] == [] and session['labels'] == []: # Need more pictures
         return getNextSetOfImages(form, lowestPercentage)
 
     elif form.is_submitted() and session['queue'] == []:# Finished Labeling
-        return prepairResults(form)
+        return prepairResults(form,True)
 
     elif form.is_submitted() and session['queue'] != []: #Still gathering labels
         session['labels'].append(form.choice.data)
         return renderLabel(form)
+    
+    return render_template('step4Labeling.html', form=form)
 
-    return render_template('label.html', form = form)
+@app.route("/step5Intermediate.html")
+def step5Intermediate():
+    """
+    Operates the step5.html web page.
+    """
+    return render_template('step5Intermediate.html')
+    
+@app.route("/save-model")
+def save_model():
+    '''
+    saves the model that is currently in session
+    '''
+    if 'model' in session:
+        default_tempPath = session['tempdir']
+        default_tokenPath = session['token']
+        al_model = tempload_model(default_tempPath,default_tokenPath)
+        al_model.save_model()
+        session.clear()
+    
+    return(redirect("index.html"))
+    
+@app.route("/clear-model")
+def clear_model():
+    '''
+    Clears the existing model in session if it exist 
+    '''
+    print("\n\n\ncalled\n\n")
+    if 'model' in session:
+        default_tempPath = session['tempdir']
+        default_tokenPath = session['token']
+        try:
+            al_model = tempload_model(default_tempPath,default_tokenPath)
+            al_model.clear_tempdata()
+        except:
+            print("model not present; skipping")
+        session.clear()
+    
+@app.route("/<istree>/<filename>")
+def tree_img(filename, istree):
+    '''
+    Allows the tree image to be viewable in the web app when passed.
+    '''
+    if istree == "True":
+        return send_from_directory(str(os.path.abspath(session['tempdir'])), filename, as_attachment=True)
+    else:
+        if "static" in session['imagedir']:
+            return send_from_directory(session['imagedir'], filename, as_attachment=True)
+        else:
+            return send_from_directory(str(os.path.abspath(session['imagedir'])), filename, as_attachment=True)
 
-@app.route("/intermediate.html",methods=['GET'])
-def intermediate():
+@app.route("/step5Final.html")
+def step5Final():
     """
-    Operates the intermediate(intermediate.html) web page.
+    Operates the step5.html web page.
     """
-    return render_template('intermediate.html')
-
-@app.route("/final.html",methods=['GET'])
-def final():
-    """
-    Operates the final(final.html) web page.
-    """
-    return render_template('final.html')
+    return render_template('step5Final.html')
 
 @app.route("/feedback/<h_list>/<u_list>/<h_conf_list>/<u_conf_list>",methods=['GET'])
-def feedback(h_list,u_list,h_conf_list,u_conf_list):
+def step6Feedback(h_list,u_list,h_conf_list,u_conf_list):
     """
-    Operates the feedback(feedback.html) web page.
+    Operates the step6Feedback.html web page.
     """
+    #print("RUNNING STEP6FEEDBACK.HTML APP ROUTE")
     h_feedback_result = list(h_list.split(","))
     u_feedback_result = list(u_list.split(","))
     h_conf_result = list(h_conf_list.split(","))
@@ -227,6 +445,5 @@ def feedback(h_list,u_list,h_conf_list,u_conf_list):
     h_length = len(h_feedback_result)
     u_length = len(u_feedback_result)
     
-    return render_template('feedback.html', healthy_list = h_feedback_result, unhealthy_list = u_feedback_result, healthy_conf_list = h_conf_result, unhealthy_conf_list = u_conf_result, h_list_length = h_length, u_list_length = u_length)
+    return render_template('step6Feedback.html', picturedir = session['imagedir'], healthy_list = h_feedback_result, unhealthy_list = u_feedback_result, healthy_conf_list = h_conf_result, unhealthy_conf_list = u_conf_result, h_list_length = h_length, u_list_length = u_length)
 
-#app.run( host='127.0.0.1', port=5000, debug='True', use_reloader = False)

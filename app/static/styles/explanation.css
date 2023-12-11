@@ -1,0 +1,92 @@
+body {
+    background-image: url('v1_2.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.title {
+    display: block;
+    position: absolute;
+    bottom: 80%;
+    font-family: Arial, sans-serif;
+    font-size: 72px;
+    font-weight: normal;
+    font-style: italic;
+    color: #FFFFFF;
+    text-align: left;
+    background-color: rgba(97, 97, 97, 0.7); /* RGB 616161 at 70% opacity */
+    padding: 10px 20px; /* Adjust padding as needed */
+    -webkit-text-stroke: .2px #939393; /* 2-pixel-wide black text outline */
+}
+
+.description {
+    display: block;
+    position: absolute;
+    bottom: 30%;
+    right: 1%;
+    font-size: 20px;
+    font-weight: normal;
+    font-style: normal;
+    color: #FFFFFF;
+    background-color: rgba(97, 97, 97, 0.7); /* RGB 616161 at 70% opacity */
+    margin-right: 50%;
+    margin-left: 1%;
+    margin-top: 5%;
+    text-align: left;
+}
+
+.next-button {
+    position: absolute;
+    bottom: 5%;
+    right: 1%;
+    background-color: rgba(97, 97, 97, 1); /* RGB 616161 at 100% opacity */
+    color: #FFFFFF; /* RGB FFFFFF at 100% opacity */
+    font-size: 24px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+.back-button {
+    position: absolute;
+    bottom: 5%;
+    right: 90%;
+    background-color: rgba(97, 97, 97, 1); /* RGB 616161 at 100% opacity */
+    color: #FFFFFF; /* RGB FFFFFF at 100% opacity */
+    font-size: 24px;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .title {
+        display: block;
+        position: absolute;
+        bottom: 20%;
+        right: 3%;
+    }
+    .description {
+        display: block;
+        position: absolute;
+        bottom: auto;
+        right: 20%;
+        top: 50%;
+        margin-top: 10px;
+    }
+    .next-button {
+        position: absolute;
+        bottom: auto;
+        right: 20%;
+        top: 70%;
+        margin-top: 10px;
+    }
+        .back-button {
+        position: absolute;
+        bottom: auto;
+        right: 20%;
+        top: 70%;
+        margin-top: 10px;
+    }
+}

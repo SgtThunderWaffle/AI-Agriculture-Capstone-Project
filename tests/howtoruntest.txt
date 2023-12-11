@@ -1,0 +1,18 @@
+Run in Terminal To Test all files: 
+
+python -m pytest 
+
+run test files in unit folder:
+
+python -m pytest tests/unit/test_unit_ImagePreprocessing.py
+
+python -m pytest tests/unit/test_DataPreprocessing.py
+
+
+run test files in integration folder:
+
+python -m pytest tests/integration/test_ML_Class_New.py
+
+python -m pytest tests/integration/test_SamplingMethods.py
+
+python -m pytest tests/integration/test_Web.py
