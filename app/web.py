@@ -102,7 +102,7 @@ def prepare_loadedModel(al_model):
     session['sample'] = al_model.train
     session['labels'] = al_model.labels
     session['hastrained'] = al_model.hastrained
-    session['confidence_break'] = .70
+    session['confidence_break'] = .85
     session['model'] = True
     
 def renderLabel(form):
@@ -270,6 +270,13 @@ def home():
     
 @app.route("/index.html", methods=['POST'])
 def load_prev_model():
+    ''' 
+    Loads the previous model based on the token enter on the given form. 
+
+    If the model exist then it will be loaded, otherwise it will be checked if its already model through the is_locked method 
+    or if the model is not found it will return a not found message
+
+    '''
     load_paths()
     token = request.form['token-enter']
     #print(is_locked(session['tempdir'],token))
@@ -377,6 +384,9 @@ def step5Intermediate():
     
 @app.route("/save-model")
 def save_model():
+    '''
+    saves the model that is currently in session
+    '''
     if 'model' in session:
         default_tempPath = session['tempdir']
         default_tokenPath = session['token']
@@ -388,6 +398,9 @@ def save_model():
     
 @app.route("/clear-model")
 def clear_model():
+    '''
+    Clears the existing model in session if it exist 
+    '''
     print("\n\n\ncalled\n\n")
     if 'model' in session:
         default_tempPath = session['tempdir']
@@ -401,6 +414,9 @@ def clear_model():
     
 @app.route("/<istree>/<filename>")
 def tree_img(filename, istree):
+    '''
+    Allows the tree image to be viewable in the web app when passed.
+    '''
     if istree == "True":
         return send_from_directory(str(os.path.abspath(session['tempdir'])), filename, as_attachment=True)
     else:
@@ -431,60 +447,3 @@ def step6Feedback(h_list,u_list,h_conf_list,u_conf_list):
     
     return render_template('step6Feedback.html', picturedir = session['imagedir'], healthy_list = h_feedback_result, unhealthy_list = u_feedback_result, healthy_conf_list = h_conf_result, unhealthy_conf_list = u_conf_result, h_list_length = h_length, u_list_length = u_length)
 
-'''
-@app.route("/label.html",methods=['GET', 'POST'])
-def label():
-    """
-    Operates the label(label.html) web page.
-    """
-    print("RUNNING LABEL.HTML APP ROUTE")
-    form = LabelForm()
-    if 'model' not in session:#Start
-        print("initialize al")
-        return initializeAL(form, .7)
-
-    elif session['queue'] == [] and session['labels'] == []: # Need more pictures
-        return getNextSetOfImages(form, lowestPercentage)
-
-    elif form.is_submitted() and session['queue'] == []:# Finished Labeling
-        return prepairResults(form)
-
-    elif form.is_submitted() and session['queue'] != []: #Still gathering labels
-        session['labels'].append(form.choice.data)
-        return renderLabel(form)
-
-    return render_template('label.html', form = form)
-
-@app.route("/intermediate.html",methods=['GET'])
-def intermediate():
-    """
-    Operates the intermediate(intermediate.html) web page.
-    """
-    print("RUNNING INTERMEDIATE.HTML APP ROUTE")
-    return render_template('intermediate.html')
-
-@app.route("/final.html",methods=['GET'])
-def final():
-    """
-    Operates the final(final.html) web page.
-    """
-    print("RUNNING FINAL.HTML APP ROUTE")
-    return render_template('final.html')
-
-@app.route("/feedback/<h_list>/<u_list>/<h_conf_list>/<u_conf_list>",methods=['GET'])
-def feedback(h_list,u_list,h_conf_list,u_conf_list):
-    """
-    Operates the feedback(feedback.html) web page.
-    """
-    print("RUNNING FEEDBACK.HTML APP ROUTE")
-    h_feedback_result = list(h_list.split(","))
-    u_feedback_result = list(u_list.split(","))
-    h_conf_result = list(h_conf_list.split(","))
-    u_conf_result = list(u_conf_list.split(","))
-    h_length = len(h_feedback_result)
-    u_length = len(u_feedback_result)
-    
-    return render_template('feedback.html', healthy_list = h_feedback_result, unhealthy_list = u_feedback_result, healthy_conf_list = h_conf_result, unhealthy_conf_list = u_conf_result, h_list_length = h_length, u_list_length = u_length)
-
-#app.run( host='127.0.0.1', port=5000, debug='True', use_reloader = False)
-'''
