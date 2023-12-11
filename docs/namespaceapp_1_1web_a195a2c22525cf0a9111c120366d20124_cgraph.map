@@ -1,0 +1,9 @@
+<map id="app.web.initializeAL" name="app.web.initializeAL">
+<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,143,56"/>
+<area shape="rect" id="Node000002" href="$namespaceapp_1_1web.html#a199f6c9e2cc0c03d395012d1726d1668" title=" " alt="" coords="202,5,321,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="143,31,188,25,188,31,143,37"/>
+<area shape="rect" id="Node000003" href="$namespaceapp_1_1web.html#a963fca4a6beae20493d5d9214bddec34" title=" " alt="" coords="191,55,332,80"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="143,49,178,54,177,59,143,55"/>
+<area shape="rect" id="Node000004" href="$namespaceapp_1_1web.html#a8fc932bdd4f63812e97e3024471128b5" title=" " alt="" coords="380,55,517,80"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="332,65,366,65,366,70,332,70"/>
+</map>
