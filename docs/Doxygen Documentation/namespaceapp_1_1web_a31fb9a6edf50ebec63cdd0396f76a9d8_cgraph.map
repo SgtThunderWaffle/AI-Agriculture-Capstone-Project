@@ -1,7 +1,0 @@
-<map id="app.web.prepairResults" name="app.web.prepairResults">
-<area shape="rect" id="Node000001" title=" " alt="" coords="5,31,163,56"/>
-<area shape="rect" id="Node000002" href="$namespaceapp_1_1web.html#ac8f03e16a82305223def10dc4e35aba0" title=" " alt="" coords="211,5,373,31"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="163,31,197,27,198,32,163,36"/>
-<area shape="rect" id="Node000003" href="$namespaceapp_1_1web.html#a199f6c9e2cc0c03d395012d1726d1668" title=" " alt="" coords="233,55,351,80"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="163,50,219,56,218,62,163,55"/>
-</map>
