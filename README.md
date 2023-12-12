@@ -18,6 +18,9 @@ cd AI-Agriculture-Capstone-Project
 # set up virtual environment - just need to do this once
 python3 -m venv env # this creates a folder called "env" that will hold all the necessary libraries
 
+# install graphviz
+apt install graphviz | use other package manager | download and run installer # this is required for creating images of model decision trees
+
 # Activate the virtual environment
 source ./env/bin/activate # tells Python that you're using this virtual environment on your console, you should see the prompt change to include "(env)" at the start of the prompt. for future sessions, you just need to run the "source ./env/bin/activate" command to have the correct virtual environment
 
